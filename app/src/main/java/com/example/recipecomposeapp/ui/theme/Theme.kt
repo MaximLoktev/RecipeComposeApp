@@ -10,26 +10,32 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+private val RecipesAppDarkColorScheme = darkColorScheme(
+    primary = PrimaryColorDark,
+    onPrimary = TextPrimaryColorDark,
+    error = AccentColorDark,
+    onError = TextPrimaryColorDark,
+    tertiary = AccentBlueDark,
+    tertiaryContainer = SliderTrackColorDark,
+    background = BackgroundColorDark,
+    surface = SurfaceColorDark,
+    surfaceVariant = SurfaceVariantColorDark,
+    onSurfaceVariant = TextSecondaryColorDark,
+    outline = DividerColorDark,
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+private val RecipesAppLightColorScheme = lightColorScheme(
+    primary = PrimaryColor,
+    onPrimary = TextPrimaryColor,
+    error = AccentColor,
+    onError = TextPrimaryColor,
+    tertiary = AccentBlue,
+    tertiaryContainer = SliderTrackColor,
+    background = BackgroundColor,
+    surface = SurfaceColor,
+    surfaceVariant = SurfaceVariantColor,
+    onSurfaceVariant = TextSecondaryColor,
+    outline = DividerColor,
 )
 
 @Composable
@@ -45,8 +51,8 @@ fun RecipeComposeAppTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> RecipesAppDarkColorScheme
+        else -> RecipesAppLightColorScheme
     }
 
     MaterialTheme(
