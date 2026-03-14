@@ -1,22 +1,62 @@
 package com.example.recipecomposeapp
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.recipecomposeapp.ui.navigation.BottomNavigation
 import com.example.recipecomposeapp.ui.theme.RecipeComposeAppTheme
+
+enum class ScreenId {
+    CATEGORIES,
+    FAVORITES
+}
 
 @Preview(showBackground = true)
 @Composable
 fun RecipesApp() {
+    var currentScreen by remember { mutableStateOf(ScreenId.CATEGORIES) }
+
     RecipeComposeAppTheme {
-        Scaffold { paddingValues ->
-            Text(
-                text = "Recipes App",
-                modifier = Modifier.padding(paddingValues)
-            )
+        Scaffold(
+            bottomBar = {
+                BottomNavigation(
+                    onCategoriesClick = { currentScreen = ScreenId.CATEGORIES },
+                    onFavoriteClick = { currentScreen = ScreenId.FAVORITES }
+                )
+            }
+        ) { paddingValues ->
+            when (currentScreen) {
+                ScreenId.CATEGORIES -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "Экран Категорий")
+                    }
+                }
+                ScreenId.FAVORITES -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "Экран Избранного")
+                    }
+                }
+            }
         }
     }
 }
