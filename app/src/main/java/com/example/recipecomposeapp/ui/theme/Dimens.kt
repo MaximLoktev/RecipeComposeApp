@@ -18,4 +18,8 @@ object Dimens {
 
     val buttonHeight = 48.dp
     val buttonCornerRadius = 8.dp
+
+    val headerHeight = 224.dp
+
+    val iconButtonSize = 40.dp
 }
