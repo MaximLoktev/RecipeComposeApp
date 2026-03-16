@@ -35,7 +35,7 @@ fun RecipesApp() {
         ) { paddingValues ->
             when (currentScreen) {
                 ScreenId.CATEGORIES -> {
-                    CategoriesScreen(paddingValues)
+                    CategoriesScreen(modifier = Modifier.padding(paddingValues))
                 }
                 ScreenId.FAVORITES -> {
                     FavoritesScreen(paddingValues)
