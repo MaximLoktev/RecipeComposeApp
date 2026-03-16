@@ -2,7 +2,6 @@ package com.example.recipecomposeapp.ui.recipes
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -18,15 +17,11 @@ import com.example.recipecomposeapp.ui.components.ScreenHeader
 import com.example.recipecomposeapp.ui.theme.Dimens
 
 @Composable
-fun RecipesScreen(paddingValues: PaddingValues) {
+fun RecipesScreen(modifier: Modifier = Modifier) {
 
     val categories = stringResource(R.string.recipes)
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
-    ) {
+    Column(modifier = modifier.fillMaxSize()) {
         ScreenHeader(
             painterResource(id = R.drawable.bcg_recipes),
             contentDescription = categories,
