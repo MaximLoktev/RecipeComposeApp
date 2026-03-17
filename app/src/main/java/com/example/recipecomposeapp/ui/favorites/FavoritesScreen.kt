@@ -1,4 +1,4 @@
-package com.example.recipecomposeapp.ui.categories
+package com.example.recipecomposeapp.ui.favorites
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,13 +17,13 @@ import com.example.recipecomposeapp.ui.components.ScreenHeader
 import com.example.recipecomposeapp.ui.theme.Dimens
 
 @Composable
-fun CategoriesScreen(modifier: Modifier = Modifier) {
+fun FavoritesScreen(modifier: Modifier = Modifier) {
 
-    val categories = stringResource(R.string.categories)
+    val categories = stringResource(R.string.favorites)
 
     Column(modifier = modifier.fillMaxSize()) {
         ScreenHeader(
-            painterResource(id = R.drawable.bcg_categories),
+            painterResource(id = R.drawable.bcg_favorites),
             contentDescription = categories,
             text = categories.uppercase()
         )
@@ -35,7 +35,7 @@ fun CategoriesScreen(modifier: Modifier = Modifier) {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Здесь будет список категорий",
+                text = "Вы еще не добавили ни одного рецепта в избранное",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.labelLarge,
                 textAlign = TextAlign.Center
