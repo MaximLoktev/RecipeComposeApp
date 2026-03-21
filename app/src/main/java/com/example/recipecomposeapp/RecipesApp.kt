@@ -39,7 +39,9 @@ fun RecipesApp() {
 
             when (currentScreen) {
                 ScreenId.CATEGORIES -> {
-                    CategoriesScreen(modifier)
+                    CategoriesScreen(modifier) { categoryId ->
+                        //TODO: реализовать переход к выбранной категории
+                    }
                 }
                 ScreenId.FAVORITES -> {
                     FavoritesScreen(modifier)
