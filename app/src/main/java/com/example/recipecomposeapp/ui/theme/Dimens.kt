@@ -22,4 +22,6 @@ object Dimens {
     val headerHeight = 224.dp
 
     val iconButtonSize = 40.dp
+
+    val mediumElevation = 4.dp
 }
