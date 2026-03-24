@@ -12,6 +12,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -19,9 +20,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.recipecomposeapp.R
 import com.example.recipecomposeapp.ui.categories.model.CategoryUiModel
 import com.example.recipecomposeapp.ui.theme.Dimens
-import com.example.recipecomposeapp.R
 
 @Composable
 fun CategoryItem(
@@ -29,6 +30,16 @@ fun CategoryItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+
+    val context = LocalContext.current
+
+    val imageRequest = remember(category.imageUrl, context) {
+        ImageRequest.Builder(context)
+            .data(category.imageUrl)
+            .crossfade(true)
+            .build()
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -45,10 +56,7 @@ fun CategoryItem(
             verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall)
         ) {
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(category.imageUrl)
-                    .crossfade(true)
-                    .build(),
+                model = imageRequest,
                 contentDescription = category.title,
                 modifier = Modifier
                     .fillMaxWidth()
