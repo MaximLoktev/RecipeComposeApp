@@ -279,7 +279,7 @@ object RecipesRepositoryStub {
                 "3. Выпекайте 10-12 минут при 220°C.",
                 "4. Добавьте свежий базилик перед подачей."
             ),
-            imageUrl = "img_placeholder.jpg"
+            imageUrl = "pizza_margarita.jpg"
         ),
         RecipeDto(
             id = 5,
@@ -312,7 +312,7 @@ object RecipesRepositoryStub {
                 "3. Выпекайте в разогретой духовке 10-15 минут при 220°C.",
                 "4. Подавайте горячей."
             ),
-            imageUrl = "img_placeholder.jpg"
+            imageUrl = "pizza_pepperoni.jpg"
         )
     )
 

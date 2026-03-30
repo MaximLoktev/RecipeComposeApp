@@ -12,6 +12,7 @@ object Dimens {
     val topBarHeight = 56.dp
     val bottomBarHeight = 64.dp
 
+    val iconExtraLarge = 100.dp
     val iconLarge = 32.dp
     val iconMedium = 24.dp
     val iconSmall = 16.dp

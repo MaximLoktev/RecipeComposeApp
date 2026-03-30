@@ -26,6 +26,9 @@ enum class ScreenId {
 fun RecipesApp() {
     var currentScreen by remember { mutableStateOf(ScreenId.CATEGORIES) }
 
+    var selectedCategoryId by remember { mutableStateOf<Int?>(null) }
+    var selectedCategoryTitle by remember { mutableStateOf("") }
+
     RecipeComposeAppTheme {
         Scaffold(
             bottomBar = {
@@ -39,15 +42,27 @@ fun RecipesApp() {
 
             when (currentScreen) {
                 ScreenId.CATEGORIES -> {
-                    CategoriesScreen(modifier) { categoryId ->
-                        //TODO: реализовать переход к выбранной категории
+                    CategoriesScreen(modifier) { categoryId, categoryTitle ->
+                        selectedCategoryId = categoryId
+                        selectedCategoryTitle = categoryTitle
+                        currentScreen = ScreenId.RECIPES
                     }
                 }
                 ScreenId.FAVORITES -> {
                     FavoritesScreen(modifier)
                 }
                 ScreenId.RECIPES -> {
-                    RecipesScreen(modifier)
+                    RecipesScreen(
+                        categoryId = selectedCategoryId ?: error("Category ID is required"),
+                        categoryTitle = selectedCategoryTitle,
+                        onRecipeClick = { recipeId ->
+                            //TODO: реализовать переход к выбранному рецепту
+                        },
+//                        onBackClick = {
+//                            currentScreen = ScreenId.CATEGORIES
+//                        },
+                        modifier = modifier
+                    )
                 }
             }
         }
