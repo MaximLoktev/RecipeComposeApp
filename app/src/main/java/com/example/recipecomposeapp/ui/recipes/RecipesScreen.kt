@@ -19,8 +19,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import coil.compose.rememberAsyncImagePainter
 import com.example.recipecomposeapp.R
 import com.example.recipecomposeapp.data.repository.RecipesRepositoryStub
+import com.example.recipecomposeapp.ui.categories.model.toUiModel
 import com.example.recipecomposeapp.ui.components.ScreenHeader
 import com.example.recipecomposeapp.ui.recipes.model.RecipeUiModel
 import com.example.recipecomposeapp.ui.recipes.model.toUiModel
@@ -32,7 +34,10 @@ fun RecipesScreen(
     categoryTitle: String,
     modifier: Modifier = Modifier,
     onRecipeClick: (Int) -> Unit,
+    onBackClick: () -> Unit,
 ) {
+
+    var categoryImageUrl by remember { mutableStateOf("") }
 
     var recipes by remember { mutableStateOf(emptyList<RecipeUiModel>()) }
 
@@ -42,6 +47,13 @@ fun RecipesScreen(
         isLoading = true
 
         try {
+            val category = RecipesRepositoryStub
+                .getCategories()
+                .find { it.id == categoryId }
+                ?.toUiModel()
+
+            categoryImageUrl = category?.imageUrl ?: ""
+
             recipes = RecipesRepositoryStub
                 .getRecipesByCategoryId(categoryId)
                 .map { it.toUiModel() }
@@ -51,10 +63,18 @@ fun RecipesScreen(
     }
 
     Column(modifier = modifier.fillMaxSize()) {
+
+        val headerPainter = if (categoryImageUrl.isNotEmpty()) {
+            rememberAsyncImagePainter(model = categoryImageUrl)
+        } else {
+            painterResource(id = R.drawable.img_placeholder)
+        }
+
         ScreenHeader(
-            painterResource(id = R.drawable.bcg_recipes),
+            painter = headerPainter,
             contentDescription = categoryTitle,
-            text = categoryTitle.uppercase()
+            text = categoryTitle.uppercase(),
+            onBackClick = onBackClick,
         )
 
         if (isLoading) {
