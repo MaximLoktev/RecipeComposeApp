@@ -19,7 +19,10 @@ import com.example.recipecomposeapp.ui.components.ScreenHeader
 import com.example.recipecomposeapp.ui.theme.Dimens
 
 @Composable
-fun CategoriesScreen(modifier: Modifier = Modifier, onCategoryClick: (Int) -> Unit) {
+fun CategoriesScreen(
+    modifier: Modifier = Modifier,
+    onCategoryClick: (Int, String) -> Unit
+) {
 
     val screenTitle = stringResource(R.string.categories)
 
@@ -50,7 +53,7 @@ fun CategoriesScreen(modifier: Modifier = Modifier, onCategoryClick: (Int) -> Un
             ) { category ->
                 CategoryItem(
                     category = category,
-                    onClick = { onCategoryClick(category.id) },
+                    onClick = { onCategoryClick(category.id, category.title) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
