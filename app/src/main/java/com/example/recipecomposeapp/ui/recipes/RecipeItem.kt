@@ -25,7 +25,7 @@ import com.example.recipecomposeapp.ui.theme.Dimens
 @Composable
 fun RecipeItem(
     recipe: RecipeUiModel,
-    onClick: () -> Unit,
+    onClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -41,7 +41,7 @@ fun RecipeItem(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onClick() },
+            .clickable { onClick(recipe.id) },
         shape = RoundedCornerShape(Dimens.buttonCornerRadius),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface

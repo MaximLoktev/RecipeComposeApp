@@ -66,7 +66,7 @@ fun RecipesScreen(
             }
         } else {
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(Dimens.paddingLarge),
                 verticalArrangement = Arrangement.spacedBy(Dimens.paddingLarge),
             ) {
@@ -76,7 +76,7 @@ fun RecipesScreen(
                 ) { recipe ->
                     RecipeItem(
                         recipe = recipe,
-                        onClick = { onRecipeClick(recipe.id) },
+                        onClick = onRecipeClick,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
