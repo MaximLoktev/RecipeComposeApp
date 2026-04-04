@@ -33,7 +33,7 @@ fun RecipesScreen(
     categoryId: Int,
     categoryTitle: String,
     modifier: Modifier = Modifier,
-    onRecipeClick: (Int) -> Unit,
+    onRecipeClick: (Int, RecipeUiModel) -> Unit,
     onBackClick: () -> Unit,
 ) {
 
@@ -96,7 +96,9 @@ fun RecipesScreen(
                 ) { recipe ->
                     RecipeItem(
                         recipe = recipe,
-                        onClick = onRecipeClick,
+                        onClick = { recipeId ->
+                            onRecipeClick(recipeId, recipe)
+                        },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
