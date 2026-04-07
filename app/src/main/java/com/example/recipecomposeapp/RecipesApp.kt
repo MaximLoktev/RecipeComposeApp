@@ -3,6 +3,7 @@ package com.example.recipecomposeapp
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -12,10 +13,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.recipecomposeapp.ui.categories.CategoriesScreen
+import com.example.recipecomposeapp.ui.details.RecipeDetailsScreen
 import com.example.recipecomposeapp.ui.favorites.FavoritesScreen
 import com.example.recipecomposeapp.ui.navigation.BottomNavigation
 import com.example.recipecomposeapp.ui.navigation.Destination
+import com.example.recipecomposeapp.ui.navigation.KEY_RECIPE_OBJECT
 import com.example.recipecomposeapp.ui.recipes.RecipesScreen
+import com.example.recipecomposeapp.ui.recipes.model.RecipeUiModel
 import com.example.recipecomposeapp.ui.theme.RecipeComposeAppTheme
 
 @Composable
@@ -67,11 +71,28 @@ fun RecipesApp() {
                     RecipesScreen(
                         categoryId = categoryId,
                         categoryTitle = categoryTitle,
-                        onRecipeClick = { recipeId ->
-                            // TODO: реализовать переход к выбранному рецепту
+                        onRecipeClick = { recipeId, recipe ->
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                KEY_RECIPE_OBJECT, recipe
+                            )
+                            navController.navigate(Destination.RecipeDetails.createRoute(recipeId))
                         },
                         onBackClick = { navController.popBackStack() }
                     )
+                }
+                composable(
+                    route = Destination.RecipeDetails.route,
+                    arguments = listOf(navArgument("recipeId") { type = NavType.IntType })
+                ) { _ ->
+                    val recipe = remember {
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.get<RecipeUiModel>(KEY_RECIPE_OBJECT)
+                    }
+
+                    if (recipe != null) {
+                        RecipeDetailsScreen(recipe = recipe)
+                    }
                 }
             }
         }
