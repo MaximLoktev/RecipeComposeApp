@@ -83,16 +83,20 @@ fun RecipesApp() {
                 composable(
                     route = Destination.RecipeDetails.route,
                     arguments = listOf(navArgument("recipeId") { type = NavType.IntType })
-                ) { _ ->
+                ) { backStackEntry ->
+                    val recipeId = backStackEntry.arguments?.getInt("recipeId") ?: 0
+
                     val recipe = remember {
                         navController.previousBackStackEntry
                             ?.savedStateHandle
                             ?.get<RecipeUiModel>(KEY_RECIPE_OBJECT)
                     }
 
-                    if (recipe != null) {
-                        RecipeDetailsScreen(recipe = recipe)
-                    }
+                    RecipeDetailsScreen(
+                        recipeId = recipeId,
+                        initialRecipe = recipe,
+                        onBackClick = { navController.popBackStack() }
+                    )
                 }
             }
         }
