@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -19,21 +18,19 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipecomposeapp.R
-import com.example.recipecomposeapp.data.repository.RecipesRepositoryStub
 import com.example.recipecomposeapp.ui.components.ScreenHeader
+import com.example.recipecomposeapp.ui.navigation.ShareUtils
 import com.example.recipecomposeapp.ui.recipes.model.RecipeUiModel
-import com.example.recipecomposeapp.ui.recipes.model.toUiModel
 import com.example.recipecomposeapp.ui.theme.Dimens
 import kotlin.math.roundToInt
 
@@ -50,37 +47,19 @@ fun RecipeDetailsScreen(
     onBackClick: () -> Unit,
 ) {
 
-    var recipe by remember { mutableStateOf(initialRecipe) }
-
-    var isLoading by remember { mutableStateOf(initialRecipe == null) }
+    val context = LocalContext.current
 
     var currentPortions by remember { mutableIntStateOf(DEFAULT_PORTIONS) }
 
-    LaunchedEffect(recipeId) {
-        if (recipe == null) {
-            isLoading = true
-
-            recipe = RecipesRepositoryStub.getRecipeById(recipeId) ?.toUiModel()
-
-            isLoading = false
-        }
-    }
-
-    if (isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-        }
-    } else if (recipe == null) {
+    if (initialRecipe == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("Рецепт не найден", style = MaterialTheme.typography.titleMedium)
         }
     } else {
-        val currentRecipe = recipe!!
-
-        val scaledIngredients = remember(currentPortions, currentRecipe) {
+        val scaledIngredients = remember(currentPortions, initialRecipe) {
             val multiplier = currentPortions.toDouble() / DEFAULT_PORTIONS.toDouble()
 
-            currentRecipe.ingredients.map { ingredient ->
+            initialRecipe.ingredients.map { ingredient ->
                 val baseAmount = ingredient.quantity.toDoubleOrNull() ?: 0.0
 
                 val formattedQuantity = if (baseAmount > 0) {
@@ -101,11 +80,19 @@ fun RecipeDetailsScreen(
         ) {
             ScreenHeader(
                 painter = rememberAsyncImagePainter(
-                    model = currentRecipe.imageUrl.ifEmpty { R.drawable.bcg_categories }
+                    model = initialRecipe.imageUrl.ifEmpty { R.drawable.bcg_categories }
                 ),
-                contentDescription = currentRecipe.title,
-                text = currentRecipe.title.uppercase(),
+                contentDescription = initialRecipe.title,
+                text = initialRecipe.title.uppercase(),
                 onBackClick = onBackClick,
+                showShareButton = true,
+                onShareClick = {
+                    ShareUtils.shareRecipe(
+                        context = context,
+                        recipeId = initialRecipe.id,
+                        recipeTitle = initialRecipe.title
+                    )
+                }
             )
 
             Column(
@@ -164,7 +151,7 @@ fun RecipeDetailsScreen(
 
                 Spacer(modifier = Modifier.height(Dimens.paddingLarge))
 
-                if (currentRecipe.method.isNotEmpty()) {
+                if (initialRecipe.method.isNotEmpty()) {
                     Text(
                         text = stringResource(R.string.cooking_method).uppercase(),
                         style = MaterialTheme.typography.displayLarge,
@@ -183,10 +170,10 @@ fun RecipeDetailsScreen(
                                 vertical = Dimens.paddingExtraSmall
                             )
                         ) {
-                            currentRecipe.method.forEachIndexed { index, step ->
+                            initialRecipe.method.forEachIndexed { index, step ->
                                 InstructionItem(stepNumber = index + 1, instruction = step)
 
-                                if (index < currentRecipe.method.lastIndex) {
+                                if (index < initialRecipe.method.lastIndex) {
                                     HorizontalDivider(color = MaterialTheme.colorScheme.outline)
                                 }
                             }
