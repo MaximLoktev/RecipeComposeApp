@@ -41,7 +41,6 @@ private const val DEFAULT_PORTIONS = 4
 private const val MIN_PORTIONS = 1f
 private const val MAX_PORTIONS = 12f
 private const val SLIDER_STEPS = 10
-private const val FALLBACK_CATEGORY_ID = 1
 
 @Composable
 fun RecipeDetailsScreen(
@@ -61,10 +60,7 @@ fun RecipeDetailsScreen(
         if (recipe == null) {
             isLoading = true
 
-            recipe = RecipesRepositoryStub
-                .getRecipesByCategoryId(FALLBACK_CATEGORY_ID)
-                .find { it.id == recipeId }
-                ?.toUiModel()
+            recipe = RecipesRepositoryStub.getRecipeById(recipeId) ?.toUiModel()
 
             isLoading = false
         }

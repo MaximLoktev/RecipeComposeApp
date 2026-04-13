@@ -1,24 +1,25 @@
 package com.example.recipecomposeapp.ui.navigation
 
-import android.net.Uri
+import kotlinx.serialization.Serializable
 
 const val KEY_RECIPE_OBJECT = "recipe_object_key"
 
-sealed class Destination(val route: String) {
-    object Categories : Destination("categories")
+sealed interface Destination {
 
-    object Favorites : Destination("favorites")
+    @Serializable
+    object Categories
 
-    object Recipes : Destination("recipes/{categoryId}/{categoryTitle}") {
+    @Serializable
+    object Favorites
 
-        fun createRoute(categoryId: Int, categoryTitle: String): String {
-            val encodedTitle = Uri.encode(categoryTitle)
-            return "recipes/$categoryId/$encodedTitle"
-        }
-    }
+    @Serializable
+    data class Recipes(
+        val categoryId: Int,
+        val categoryTitle: String
+    )
 
-    object RecipeDetails : Destination("recipes/{recipeId}") {
-
-        fun createRoute(recipeId: Int): String = "recipes/$recipeId"
-    }
+    @Serializable
+    data class RecipeDetails(
+        val recipeId: Int
+    )
 }

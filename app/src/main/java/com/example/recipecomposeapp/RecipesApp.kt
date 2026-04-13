@@ -7,11 +7,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import androidx.navigation.toRoute
 import com.example.recipecomposeapp.ui.categories.CategoriesScreen
 import com.example.recipecomposeapp.ui.details.RecipeDetailsScreen
 import com.example.recipecomposeapp.ui.favorites.FavoritesScreen
@@ -32,12 +31,12 @@ fun RecipesApp() {
             bottomBar = {
                 BottomNavigation(
                     onCategoriesClick = {
-                        navController.navigate(Destination.Categories.route) {
+                        navController.navigate(Destination.Categories) {
                             popUpTo(navController.graph.findStartDestination().id)
                         }
                     },
                     onFavoriteClick = {
-                        navController.navigate(Destination.Favorites.route) {
+                        navController.navigate(Destination.Favorites) {
                             popUpTo(navController.graph.findStartDestination().id)
                         }
                     }
@@ -47,44 +46,34 @@ fun RecipesApp() {
 
             NavHost(
                 navController = navController,
-                startDestination = Destination.Categories.route,
+                startDestination = Destination.Categories,
                 modifier = Modifier.padding(paddingValues)
             ) {
-                composable(route = Destination.Categories.route) {
+                composable<Destination.Categories> {
                     CategoriesScreen { categoryId, categoryTitle ->
-                        navController.navigate(Destination.Recipes.createRoute(categoryId, categoryTitle))
+                        navController.navigate(Destination.Recipes(categoryId, categoryTitle))
                     }
                 }
-                composable(route = Destination.Favorites.route) {
+                composable<Destination.Favorites> {
                     FavoritesScreen()
                 }
-                composable(
-                    route = Destination.Recipes.route,
-                    arguments = listOf(
-                        navArgument("categoryId") { type = NavType.IntType },
-                        navArgument("categoryTitle") { type = NavType.StringType }
-                    )
-                ) { backStackEntry ->
-                    val categoryId = backStackEntry.arguments?.getInt("categoryId") ?: error("Category ID is required")
-                    val categoryTitle = backStackEntry.arguments?.getString("categoryTitle") ?: ""
+                composable<Destination.Recipes> { backStackEntry ->
+                    val args = backStackEntry.toRoute<Destination.Recipes>()
 
                     RecipesScreen(
-                        categoryId = categoryId,
-                        categoryTitle = categoryTitle,
+                        categoryId = args.categoryId,
+                        categoryTitle = args.categoryTitle,
                         onRecipeClick = { recipeId, recipe ->
                             navController.currentBackStackEntry?.savedStateHandle?.set(
                                 KEY_RECIPE_OBJECT, recipe
                             )
-                            navController.navigate(Destination.RecipeDetails.createRoute(recipeId))
+                            navController.navigate(Destination.RecipeDetails(recipeId))
                         },
                         onBackClick = { navController.popBackStack() }
                     )
                 }
-                composable(
-                    route = Destination.RecipeDetails.route,
-                    arguments = listOf(navArgument("recipeId") { type = NavType.IntType })
-                ) { backStackEntry ->
-                    val recipeId = backStackEntry.arguments?.getInt("recipeId") ?: 0
+                composable<Destination.RecipeDetails> { backStackEntry ->
+                    val args = backStackEntry.toRoute<Destination.RecipeDetails>()
 
                     val recipe = remember {
                         navController.previousBackStackEntry
@@ -93,7 +82,7 @@ fun RecipesApp() {
                     }
 
                     RecipeDetailsScreen(
-                        recipeId = recipeId,
+                        recipeId = args.recipeId,
                         initialRecipe = recipe,
                         onBackClick = { navController.popBackStack() }
                     )

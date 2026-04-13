@@ -569,4 +569,10 @@ object RecipesRepositoryStub {
             5 -> saladRecipes
             else -> emptyList()
         }
+
+    fun getRecipeById(recipeId: Int): RecipeDto? {
+        return categories
+            .flatMap { category -> getRecipesByCategoryId(category.id) }
+            .find { recipe -> recipe.id == recipeId }
+    }
 }
