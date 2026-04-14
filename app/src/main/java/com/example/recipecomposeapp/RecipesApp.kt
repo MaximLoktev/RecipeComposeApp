@@ -1,9 +1,10 @@
 package com.example.recipecomposeapp
 
+import android.content.Intent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -16,15 +17,26 @@ import com.example.recipecomposeapp.ui.details.RecipeDetailsScreen
 import com.example.recipecomposeapp.ui.favorites.FavoritesScreen
 import com.example.recipecomposeapp.ui.navigation.BottomNavigation
 import com.example.recipecomposeapp.ui.navigation.Destination
-import com.example.recipecomposeapp.ui.navigation.KEY_RECIPE_OBJECT
 import com.example.recipecomposeapp.ui.recipes.RecipesScreen
-import com.example.recipecomposeapp.ui.recipes.model.RecipeUiModel
 import com.example.recipecomposeapp.ui.theme.RecipeComposeAppTheme
+import androidx.navigation.navDeepLink
+import com.example.recipecomposeapp.Constants.DEEP_LINK_BASE_URL
+import com.example.recipecomposeapp.Constants.DEEP_LINK_SCHEME
+import com.example.recipecomposeapp.data.repository.RecipesRepositoryStub
+import com.example.recipecomposeapp.ui.recipes.model.toUiModel
+import kotlinx.coroutines.delay
 
 @Composable
-fun RecipesApp() {
+fun RecipesApp(externalIntent: Intent? = null) {
 
     val navController = rememberNavController()
+
+    LaunchedEffect(externalIntent) {
+        externalIntent?.let {
+            delay(100)
+            navController.handleDeepLink(it)
+        }
+    }
 
     RecipeComposeAppTheme {
         Scaffold(
@@ -63,23 +75,25 @@ fun RecipesApp() {
                     RecipesScreen(
                         categoryId = args.categoryId,
                         categoryTitle = args.categoryTitle,
-                        onRecipeClick = { recipeId, recipe ->
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                KEY_RECIPE_OBJECT, recipe
-                            )
+                        onRecipeClick = { recipeId, _ ->
                             navController.navigate(Destination.RecipeDetails(recipeId))
                         },
                         onBackClick = { navController.popBackStack() }
                     )
                 }
-                composable<Destination.RecipeDetails> { backStackEntry ->
+                composable<Destination.RecipeDetails>(
+                    deepLinks = listOf(
+                        navDeepLink<Destination.RecipeDetails>(
+                            basePath = "$DEEP_LINK_SCHEME://recipe"
+                        ),
+                        navDeepLink<Destination.RecipeDetails>(
+                            basePath = "$DEEP_LINK_BASE_URL/recipe"
+                        )
+                    )
+                ) { backStackEntry ->
                     val args = backStackEntry.toRoute<Destination.RecipeDetails>()
 
-                    val recipe = remember {
-                        navController.previousBackStackEntry
-                            ?.savedStateHandle
-                            ?.get<RecipeUiModel>(KEY_RECIPE_OBJECT)
-                    }
+                    val recipe = RecipesRepositoryStub.getRecipeById(args.recipeId)?.toUiModel()
 
                     RecipeDetailsScreen(
                         recipeId = args.recipeId,
