@@ -24,6 +24,7 @@ import com.example.recipecomposeapp.Constants.DEEP_LINK_BASE_URL
 import com.example.recipecomposeapp.Constants.DEEP_LINK_SCHEME
 import com.example.recipecomposeapp.data.repository.RecipesRepositoryStub
 import com.example.recipecomposeapp.ui.recipes.model.toUiModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun RecipesApp(externalIntent: Intent? = null) {
@@ -32,6 +33,7 @@ fun RecipesApp(externalIntent: Intent? = null) {
 
     LaunchedEffect(externalIntent) {
         externalIntent?.let {
+            delay(100)
             navController.handleDeepLink(it)
         }
     }

@@ -29,7 +29,7 @@ import androidx.compose.ui.res.stringResource
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipecomposeapp.R
 import com.example.recipecomposeapp.ui.components.ScreenHeader
-import com.example.recipecomposeapp.ui.navigation.ShareUtils
+import com.example.recipecomposeapp.ui.utils.ShareUtils
 import com.example.recipecomposeapp.ui.recipes.model.RecipeUiModel
 import com.example.recipecomposeapp.ui.theme.Dimens
 import kotlin.math.roundToInt

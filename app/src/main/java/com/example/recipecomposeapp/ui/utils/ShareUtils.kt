@@ -1,13 +1,13 @@
-package com.example.recipecomposeapp.ui.navigation
+package com.example.recipecomposeapp.ui.utils
 
 import android.content.Context
 import android.content.Intent
-import com.example.recipecomposeapp.Constants.DEEP_LINK_BASE_URL
+import com.example.recipecomposeapp.Constants
 
 object ShareUtils {
 
     fun createRecipeDeepLink(recipeId: Int): String {
-        return "${DEEP_LINK_BASE_URL}/recipe/$recipeId"
+        return "${Constants.DEEP_LINK_BASE_URL}/recipe/$recipeId"
     }
 
     fun shareRecipe(context: Context, recipeId: Int, recipeTitle: String) {
