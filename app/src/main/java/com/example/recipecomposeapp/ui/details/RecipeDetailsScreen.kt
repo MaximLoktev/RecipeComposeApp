@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,9 +30,9 @@ import androidx.compose.ui.res.stringResource
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipecomposeapp.R
 import com.example.recipecomposeapp.ui.components.ScreenHeader
-import com.example.recipecomposeapp.ui.utils.ShareUtils
 import com.example.recipecomposeapp.ui.recipes.model.RecipeUiModel
 import com.example.recipecomposeapp.ui.theme.Dimens
+import com.example.recipecomposeapp.ui.utils.ShareUtils
 import kotlin.math.roundToInt
 
 private const val DEFAULT_PORTIONS = 4
@@ -45,18 +46,20 @@ fun RecipeDetailsScreen(
     initialRecipe: RecipeUiModel?,
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
+    isFavorite: Boolean,
+    onFavoriteToggle: () -> Unit,
 ) {
 
     val context = LocalContext.current
 
-    var currentPortions by remember { mutableIntStateOf(DEFAULT_PORTIONS) }
+    var currentPortions by rememberSaveable { mutableIntStateOf(DEFAULT_PORTIONS) }
 
     if (initialRecipe == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("Рецепт не найден", style = MaterialTheme.typography.titleMedium)
         }
     } else {
-        val scaledIngredients = remember(currentPortions, initialRecipe) {
+        val scaledIngredients = remember(currentPortions, initialRecipe.ingredients) {
             val multiplier = currentPortions.toDouble() / DEFAULT_PORTIONS.toDouble()
 
             initialRecipe.ingredients.map { ingredient ->
@@ -92,7 +95,10 @@ fun RecipeDetailsScreen(
                         recipeId = initialRecipe.id,
                         recipeTitle = initialRecipe.title
                     )
-                }
+                },
+                showFavoriteButton = true,
+                isFavorite = isFavorite,
+                onFavoriteToggle = onFavoriteToggle,
             )
 
             Column(
