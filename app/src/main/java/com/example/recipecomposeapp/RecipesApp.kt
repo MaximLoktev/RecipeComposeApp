@@ -5,25 +5,29 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
+import com.example.recipecomposeapp.Constants.DEEP_LINK_BASE_URL
+import com.example.recipecomposeapp.Constants.DEEP_LINK_SCHEME
+import com.example.recipecomposeapp.data.repository.RecipesRepositoryStub
 import com.example.recipecomposeapp.ui.categories.CategoriesScreen
 import com.example.recipecomposeapp.ui.details.RecipeDetailsScreen
 import com.example.recipecomposeapp.ui.favorites.FavoritesScreen
 import com.example.recipecomposeapp.ui.navigation.BottomNavigation
 import com.example.recipecomposeapp.ui.navigation.Destination
 import com.example.recipecomposeapp.ui.recipes.RecipesScreen
-import com.example.recipecomposeapp.ui.theme.RecipeComposeAppTheme
-import androidx.navigation.navDeepLink
-import com.example.recipecomposeapp.Constants.DEEP_LINK_BASE_URL
-import com.example.recipecomposeapp.Constants.DEEP_LINK_SCHEME
-import com.example.recipecomposeapp.data.repository.RecipesRepositoryStub
 import com.example.recipecomposeapp.ui.recipes.model.toUiModel
+import com.example.recipecomposeapp.ui.theme.RecipeComposeAppTheme
 import kotlinx.coroutines.delay
 
 @Composable
@@ -92,13 +96,16 @@ fun RecipesApp(externalIntent: Intent? = null) {
                     )
                 ) { backStackEntry ->
                     val args = backStackEntry.toRoute<Destination.RecipeDetails>()
-
                     val recipe = RecipesRepositoryStub.getRecipeById(args.recipeId)?.toUiModel()
+
+                    var isFavorite by rememberSaveable { mutableStateOf(false) }
 
                     RecipeDetailsScreen(
                         recipeId = args.recipeId,
                         initialRecipe = recipe,
-                        onBackClick = { navController.popBackStack() }
+                        onBackClick = { navController.popBackStack() },
+                        isFavorite = isFavorite,
+                        onFavoriteToggle = { isFavorite = !isFavorite }
                     )
                 }
             }
