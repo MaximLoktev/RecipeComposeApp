@@ -7,9 +7,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -28,6 +29,7 @@ import com.example.recipecomposeapp.ui.navigation.Destination
 import com.example.recipecomposeapp.ui.recipes.RecipesScreen
 import com.example.recipecomposeapp.ui.recipes.model.toUiModel
 import com.example.recipecomposeapp.ui.theme.RecipeComposeAppTheme
+import com.example.recipecomposeapp.ui.utils.FavoritePrefsManager
 import kotlinx.coroutines.delay
 
 @Composable
@@ -96,16 +98,30 @@ fun RecipesApp(externalIntent: Intent? = null) {
                     )
                 ) { backStackEntry ->
                     val args = backStackEntry.toRoute<Destination.RecipeDetails>()
-                    val recipe = RecipesRepositoryStub.getRecipeById(args.recipeId)?.toUiModel()
 
-                    var isFavorite by rememberSaveable { mutableStateOf(false) }
+                    val recipeId = args.recipeId
+                    val recipe = RecipesRepositoryStub.getRecipeById(recipeId)?.toUiModel()
 
+                    val context = LocalContext.current
+                    val favoritePrefs = remember { FavoritePrefsManager(context) }
+
+                    var isFavorite by remember(recipeId) {
+                        mutableStateOf(favoritePrefs.isFavorite(recipeId))
+                    }
                     RecipeDetailsScreen(
-                        recipeId = args.recipeId,
+                        recipeId = recipeId,
                         initialRecipe = recipe,
                         onBackClick = { navController.popBackStack() },
                         isFavorite = isFavorite,
-                        onFavoriteToggle = { isFavorite = !isFavorite }
+                        onFavoriteToggle = {
+                            isFavorite = !isFavorite
+
+                            if (isFavorite) {
+                                favoritePrefs.addToFavorites(recipeId)
+                            } else {
+                                favoritePrefs.removeFromFavorites(recipeId)
+                            }
+                        }
                     )
                 }
             }
