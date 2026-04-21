@@ -5,9 +5,10 @@ import androidx.core.content.edit
 
 class FavoritePrefsManager(context: Context) {
 
-    private val FILE_NAME_KEY = "recipe_app_prefs"
-
-    private val FAVORITES_KEY = "favorite_recipe_ids"
+    companion object {
+        private const val FILE_NAME_KEY = "recipe_app_prefs"
+        private const val FAVORITES_KEY = "favorite_recipe_ids"
+    }
 
     private val prefs = context.getSharedPreferences(FILE_NAME_KEY, Context.MODE_PRIVATE)
 
