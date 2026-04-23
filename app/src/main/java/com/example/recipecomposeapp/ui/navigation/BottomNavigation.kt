@@ -9,12 +9,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -24,13 +27,17 @@ import com.example.recipecomposeapp.R
 import com.example.recipecomposeapp.ui.theme.Dimens
 
 @Composable
-fun BottomNavigation(onCategoriesClick: () -> Unit, onFavoriteClick: () -> Unit) {
+fun BottomNavigation(
+    favoriteCount: Int = 0,
+    onCategoriesClick: () -> Unit,
+    onFavoriteClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
             .padding(
-                horizontal = Dimens.paddingLarge,
+                horizontal =Dimens.paddingSmall,
                 vertical = Dimens.paddingSmall
             ),
         horizontalArrangement = Arrangement.spacedBy(Dimens.paddingMedium)
@@ -59,20 +66,42 @@ fun BottomNavigation(onCategoriesClick: () -> Unit, onFavoriteClick: () -> Unit)
                 contentColor = MaterialTheme.colorScheme.onError
             ),
         ) {
-            val string = stringResource(R.string.favorites)
+            val stringFavorites = stringResource(R.string.favorites)
 
-            Text(
-                text = string.uppercase(),
-                style = MaterialTheme.typography.titleMedium,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = stringFavorites.uppercase(),
+                    style = MaterialTheme.typography.titleMedium
+                )
 
-            Spacer(modifier = Modifier.width(Dimens.paddingSmall))
+                Spacer(modifier = Modifier.width(6.dp))
 
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_heart_empty),
-                contentDescription = string,
-                modifier = Modifier.size(30.dp)
-            )
+                BadgedBox(
+                    badge = {
+                        if (favoriteCount > 0) {
+                            val badgeText = if (favoriteCount > 99) "99+" else favoriteCount.toString()
+
+                            Badge(
+                                containerColor = MaterialTheme.colorScheme.onError,
+                                contentColor = MaterialTheme.colorScheme.error
+                            ) {
+                                Text(
+                                    text = badgeText,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    maxLines = 1,
+                                    softWrap = false
+                                )
+                            }
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_heart_empty),
+                        contentDescription = stringFavorites,
+                        modifier = Modifier.size(Dimens.iconMedium)
+                    )
+                }
+            }
         }
     }
 }

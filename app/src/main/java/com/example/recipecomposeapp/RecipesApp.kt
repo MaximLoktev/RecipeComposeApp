@@ -5,11 +5,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,18 +45,31 @@ fun RecipesApp(externalIntent: Intent? = null) {
         }
     }
 
+    val context = LocalContext.current
+    val favoriteManager = remember { FavoriteDataStoreManager(context) }
+    val favoriteCount by favoriteManager.getFavoriteCountFlow().collectAsState(initial = 0)
+
     RecipeComposeAppTheme {
         Scaffold(
             bottomBar = {
                 BottomNavigation(
+                    favoriteCount = favoriteCount,
                     onCategoriesClick = {
                         navController.navigate(Destination.Categories) {
-                            popUpTo(navController.graph.findStartDestination().id)
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
                         }
                     },
                     onFavoriteClick = {
                         navController.navigate(Destination.Favorites) {
-                            popUpTo(navController.graph.findStartDestination().id)
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
                         }
                     }
                 )
@@ -104,16 +116,11 @@ fun RecipesApp(externalIntent: Intent? = null) {
                     val recipeId = args.recipeId
                     val recipe = RecipesRepositoryStub.getRecipeById(recipeId)?.toUiModel()
 
-                    val context = LocalContext.current
-                    val favoriteManager = remember { FavoriteDataStoreManager(context) }
-
                     val coroutineScope = rememberCoroutineScope()
 
-                    var isFavorite by remember(recipeId) { mutableStateOf(false) }
-
-                    LaunchedEffect(recipeId) {
-                        isFavorite = favoriteManager.isFavorite(recipeId)
-                    }
+                    val isFavorite by favoriteManager
+                        .isFavoriteFlow(recipeId)
+                        .collectAsState(initial = false)
 
                     RecipeDetailsScreen(
                         recipeId = recipeId,
@@ -127,8 +134,6 @@ fun RecipesApp(externalIntent: Intent? = null) {
                                 } else {
                                     favoriteManager.addFavorite(recipeId)
                                 }
-
-                                isFavorite = !isFavorite
                             }
                         }
                     )
