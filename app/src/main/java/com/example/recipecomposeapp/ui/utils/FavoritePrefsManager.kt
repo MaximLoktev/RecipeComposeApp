@@ -2,35 +2,31 @@ package com.example.recipecomposeapp.ui.utils
 
 import android.content.Context
 import androidx.core.content.edit
+import com.example.recipecomposeapp.Constants
 
 class FavoritePrefsManager(context: Context) {
 
-    companion object {
-        private const val FILE_NAME_KEY = "recipe_app_prefs"
-        private const val FAVORITES_KEY = "favorite_recipe_ids"
-    }
+    private val prefs = context.getSharedPreferences(Constants.PREFS_FILE_NAME, Context.MODE_PRIVATE)
 
-    private val prefs = context.getSharedPreferences(FILE_NAME_KEY, Context.MODE_PRIVATE)
-
-    fun getAllFavorites(): Set<String> {
-        return prefs.getStringSet(FAVORITES_KEY, emptySet()) ?: emptySet()
+    fun getFavorites(): Set<String> {
+        return prefs.getStringSet(Constants.FAVORITES_KEY_NAME, emptySet()) ?: emptySet()
     }
 
     fun isFavorite(recipeId: Int): Boolean {
-        return getAllFavorites().contains(recipeId.toString())
+        return getFavorites().contains(recipeId.toString())
     }
 
-    fun addToFavorites(recipeId: Int) {
-        val updatedFavorites = getAllFavorites().toMutableSet()
+    fun addFavorite(recipeId: Int) {
+        val updatedFavorites = getFavorites().toMutableSet()
         updatedFavorites.add(recipeId.toString())
 
-        prefs.edit { putStringSet(FAVORITES_KEY, updatedFavorites) }
+        prefs.edit { putStringSet(Constants.FAVORITES_KEY_NAME, updatedFavorites) }
     }
 
-    fun removeFromFavorites(recipeId: Int) {
-        val updatedFavorites = getAllFavorites().toMutableSet()
+    fun removeFavorite(recipeId: Int) {
+        val updatedFavorites = getFavorites().toMutableSet()
         updatedFavorites.remove(recipeId.toString())
 
-        prefs.edit { putStringSet(FAVORITES_KEY, updatedFavorites) }
+        prefs.edit { putStringSet(Constants.FAVORITES_KEY_NAME, updatedFavorites) }
     }
 }
