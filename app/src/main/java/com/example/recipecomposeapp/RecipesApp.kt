@@ -87,7 +87,13 @@ fun RecipesApp(externalIntent: Intent? = null) {
                     }
                 }
                 composable<Destination.Favorites> {
-                    FavoritesScreen()
+                    FavoritesScreen(
+                        recipesRepository = RecipesRepositoryStub,
+                        favoriteManager = favoriteManager,
+                        onRecipeClick = { recipeId ->
+                            navController.navigate(Destination.RecipeDetails(recipeId))
+                        }
+                    )
                 }
                 composable<Destination.Recipes> { backStackEntry ->
                     val args = backStackEntry.toRoute<Destination.Recipes>()
