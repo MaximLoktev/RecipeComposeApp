@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -18,172 +19,115 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipecomposeapp.R
 import com.example.recipecomposeapp.core.ui.components.ScreenHeader
-import com.example.recipecomposeapp.features.recipes.presentation.model.RecipeUiModel
 import com.example.recipecomposeapp.core.ui.theme.Dimens
 import com.example.recipecomposeapp.core.utils.ShareUtils
+import com.example.recipecomposeapp.features.details.presentation.RecipeDetailsViewModel
+import com.example.recipecomposeapp.features.recipes.presentation.model.IngredientUiModel
 import kotlin.math.roundToInt
 
-private const val DEFAULT_PORTIONS = 4
 private const val MIN_PORTIONS = 1f
 private const val MAX_PORTIONS = 12f
 private const val SLIDER_STEPS = 10
 
 @Composable
 fun RecipeDetailsScreen(
-    recipeId: Int,
-    initialRecipe: RecipeUiModel?,
-    modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
-    isFavorite: Boolean,
-    onFavoriteToggle: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: RecipeDetailsViewModel = viewModel(),
 ) {
 
     val context = LocalContext.current
 
-    var currentPortions by rememberSaveable { mutableIntStateOf(DEFAULT_PORTIONS) }
+    val uiState by viewModel.uiState.collectAsState()
 
-    if (initialRecipe == null) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Рецепт не найден", style = MaterialTheme.typography.titleMedium)
-        }
-    } else {
-        val scaledIngredients = remember(currentPortions, initialRecipe.ingredients) {
-            val multiplier = currentPortions.toDouble() / DEFAULT_PORTIONS.toDouble()
-
-            initialRecipe.ingredients.map { ingredient ->
-                val baseAmount = ingredient.quantity.toDoubleOrNull() ?: 0.0
-
-                val formattedQuantity = if (baseAmount > 0) {
-                    formatQuantity(baseAmount, multiplier)
-                } else {
-                    ingredient.quantity
-                }
-
-                ingredient.copy(quantity = formattedQuantity)
+    when {
+        uiState.isLoading -> {
+            Box(
+                modifier = modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         }
-
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .verticalScroll(rememberScrollState())
-        ) {
-            ScreenHeader(
-                painter = rememberAsyncImagePainter(
-                    model = initialRecipe.imageUrl.ifEmpty { R.drawable.bcg_categories }
-                ),
-                contentDescription = initialRecipe.title,
-                text = initialRecipe.title.uppercase(),
-                onBackClick = onBackClick,
-                showShareButton = true,
-                onShareClick = {
-                    ShareUtils.shareRecipe(
-                        context = context,
-                        recipeId = initialRecipe.id,
-                        recipeTitle = initialRecipe.title
-                    )
-                },
-                showFavoriteButton = true,
-                isFavorite = isFavorite,
-                onFavoriteToggle = onFavoriteToggle,
-            )
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(Dimens.paddingLarge)
+        uiState.error != null -> {
+            Box(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(Dimens.paddingLarge),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = stringResource(R.string.ingredients).uppercase(),
-                    style = MaterialTheme.typography.displayLarge,
-                    color = MaterialTheme.colorScheme.primary
+                    text = uiState.error.orEmpty(),
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyLarge
                 )
-
-                val portionsTitle = stringResource(R.string.portions)
-
+            }
+        }
+        uiState.recipe == null -> {
+            Box(
+                modifier = modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
                 Text(
-                    text = "$portionsTitle: $currentPortions",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = Dimens.paddingSmall)
+                    text = stringResource(R.string.recipe_not_found),
+                    style = MaterialTheme.typography.titleMedium
                 )
+            }
+        }
+        else -> {
+            val currentRecipe = uiState.recipe!!
 
-                Slider(
-                    value = currentPortions.toFloat(),
-                    onValueChange = { currentPortions = it.roundToInt() },
-                    valueRange = MIN_PORTIONS..MAX_PORTIONS,
-                    steps = SLIDER_STEPS,
-                    colors = SliderDefaults.colors(
-                        thumbColor = MaterialTheme.colorScheme.tertiary,
-                        activeTrackColor = MaterialTheme.colorScheme.tertiary,
-                        inactiveTrackColor = MaterialTheme.colorScheme.tertiaryContainer
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                ScreenHeader(
+                    painter = rememberAsyncImagePainter(
+                        model = currentRecipe.imageUrl.ifEmpty { R.drawable.bcg_categories }
                     ),
-                    modifier = Modifier.padding(vertical = Dimens.paddingSmall)
+                    contentDescription = currentRecipe.title,
+                    text = currentRecipe.title.uppercase(),
+                    onBackClick = onBackClick,
+                    showShareButton = true,
+                    onShareClick = {
+                        ShareUtils.shareRecipe(
+                            context = context,
+                            recipeId = currentRecipe.id,
+                            recipeTitle = currentRecipe.title
+                        )
+                    },
+                    showFavoriteButton = true,
+                    isFavorite = uiState.isFavorite,
+                    onFavoriteToggle = { viewModel.toggleFavorite() },
                 )
 
-                Surface(
-                    shape = RoundedCornerShape(Dimens.buttonCornerRadius),
-                    color = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.fillMaxWidth()
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(Dimens.paddingLarge)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(
-                            horizontal = Dimens.paddingMedium,
-                            vertical = Dimens.paddingExtraSmall
-                        )
-                    ) {
-                        scaledIngredients.forEachIndexed { index, ingredient ->
-                            IngredientItem(ingredient = ingredient)
-
-                            if (index < scaledIngredients.lastIndex) {
-                                HorizontalDivider(color = MaterialTheme.colorScheme.outline)
-                            }
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(Dimens.paddingLarge))
-
-                if (initialRecipe.method.isNotEmpty()) {
-                    Text(
-                        text = stringResource(R.string.cooking_method).uppercase(),
-                        style = MaterialTheme.typography.displayLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(bottom = Dimens.paddingLarge)
+                    IngredientsSection(
+                        ingredients = uiState.computedIngredients,
+                        portionsCount = uiState.portionsCount,
+                        onPortionsChange = { viewModel.updatePortions(it) },
                     )
 
-                    Surface(
-                        shape = RoundedCornerShape(Dimens.buttonCornerRadius),
-                        color = MaterialTheme.colorScheme.surface,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(
-                                horizontal = Dimens.paddingMedium,
-                                vertical = Dimens.paddingExtraSmall
-                            )
-                        ) {
-                            initialRecipe.method.forEachIndexed { index, step ->
-                                InstructionItem(stepNumber = index + 1, instruction = step)
+                    if (currentRecipe.method.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(Dimens.paddingLarge))
 
-                                if (index < initialRecipe.method.lastIndex) {
-                                    HorizontalDivider(color = MaterialTheme.colorScheme.outline)
-                                }
-                            }
-                        }
+                        CookingMethodSection(method = currentRecipe.method)
                     }
                 }
             }
@@ -191,17 +135,87 @@ fun RecipeDetailsScreen(
     }
 }
 
-/**
- * Умножает базовое количество на множитель порций и красиво форматирует результат.
- * Оставляет один знак после запятой, но убирает ".0", если число целое.
- */
-private fun formatQuantity(baseAmount: Double, multiplier: Double): String {
-    val scaledAmount = baseAmount * multiplier
-    val rounded = (scaledAmount * 10).roundToInt() / 10.0
+@Composable
+private fun IngredientsSection(
+    ingredients: List<IngredientUiModel>,
+    portionsCount: Int,
+    onPortionsChange: (Int) -> Unit
+) {
+    Text(
+        text = stringResource(R.string.ingredients).uppercase(),
+        style = MaterialTheme.typography.displayLarge,
+        color = MaterialTheme.colorScheme.primary
+    )
 
-    return if (rounded % 1.0 == 0.0) {
-        rounded.toInt().toString()
-    } else {
-        rounded.toString()
+    Text(
+        text = "${stringResource(R.string.portions)}: $portionsCount",
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(top = Dimens.paddingSmall)
+    )
+
+    Slider(
+        value = portionsCount.toFloat(),
+        onValueChange = { onPortionsChange(it.roundToInt()) },
+        valueRange = MIN_PORTIONS..MAX_PORTIONS,
+        steps = SLIDER_STEPS,
+        colors = SliderDefaults.colors(
+            thumbColor = MaterialTheme.colorScheme.tertiary,
+            activeTrackColor = MaterialTheme.colorScheme.tertiary,
+            inactiveTrackColor = MaterialTheme.colorScheme.tertiaryContainer
+        ),
+        modifier = Modifier.padding(vertical = Dimens.paddingSmall)
+    )
+
+    Surface(
+        shape = RoundedCornerShape(Dimens.buttonCornerRadius),
+        color = MaterialTheme.colorScheme.surface,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(
+                horizontal = Dimens.paddingMedium,
+                vertical = Dimens.paddingExtraSmall
+            )
+        ) {
+            ingredients.forEachIndexed { index, ingredient ->
+                IngredientItem(ingredient = ingredient)
+
+                if (index < ingredients.lastIndex) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CookingMethodSection(method: List<String>) {
+    Text(
+        text = stringResource(R.string.cooking_method).uppercase(),
+        style = MaterialTheme.typography.displayLarge,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(bottom = Dimens.paddingLarge)
+    )
+
+    Surface(
+        shape = RoundedCornerShape(Dimens.buttonCornerRadius),
+        color = MaterialTheme.colorScheme.surface,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(
+                horizontal = Dimens.paddingMedium,
+                vertical = Dimens.paddingExtraSmall
+            )
+        ) {
+            method.forEachIndexed { index, step ->
+                InstructionItem(stepNumber = index + 1, instruction = step)
+
+                if (index < method.lastIndex) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+                }
+            }
+        }
     }
 }

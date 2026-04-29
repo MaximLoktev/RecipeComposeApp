@@ -13,7 +13,8 @@ sealed interface Destination {
     @Serializable
     data class Recipes(
         val categoryId: Int,
-        val categoryTitle: String
+        val categoryTitle: String,
+        val categoryImageUrl: String,
     )
 
     @Serializable
