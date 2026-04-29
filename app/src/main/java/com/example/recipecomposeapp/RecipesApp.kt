@@ -8,10 +8,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,18 +20,16 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import com.example.recipecomposeapp.core.Constants.DEEP_LINK_BASE_URL
 import com.example.recipecomposeapp.core.Constants.DEEP_LINK_SCHEME
-import com.example.recipecomposeapp.data.repository.RecipesRepositoryStub
-import com.example.recipecomposeapp.features.categories.ui.CategoriesScreen
-import com.example.recipecomposeapp.features.details.ui.RecipeDetailsScreen
-import com.example.recipecomposeapp.features.favorites.ui.FavoritesScreen
 import com.example.recipecomposeapp.core.ui.navigation.BottomNavigation
 import com.example.recipecomposeapp.core.ui.navigation.Destination
-import com.example.recipecomposeapp.features.recipes.ui.RecipesScreen
-import com.example.recipecomposeapp.features.recipes.presentation.model.toUiModel
 import com.example.recipecomposeapp.core.ui.theme.RecipeComposeAppTheme
 import com.example.recipecomposeapp.core.utils.FavoriteDataStoreManager
+import com.example.recipecomposeapp.features.categories.ui.CategoriesScreen
+import com.example.recipecomposeapp.features.details.presentation.RecipeDetailsViewModel
+import com.example.recipecomposeapp.features.details.ui.RecipeDetailsScreen
+import com.example.recipecomposeapp.features.favorites.ui.FavoritesScreen
+import com.example.recipecomposeapp.features.recipes.ui.RecipesScreen
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun RecipesApp(externalIntent: Intent? = null) {
@@ -94,8 +92,6 @@ fun RecipesApp(externalIntent: Intent? = null) {
                 }
                 composable<Destination.Favorites> {
                     FavoritesScreen(
-                        recipesRepository = RecipesRepositoryStub,
-                        favoriteManager = favoriteManager,
                         onRecipeClick = { recipeId ->
                             navController.navigate(Destination.RecipeDetails(recipeId))
                         }
@@ -121,29 +117,15 @@ fun RecipesApp(externalIntent: Intent? = null) {
                 ) { backStackEntry ->
                     val args = backStackEntry.toRoute<Destination.RecipeDetails>()
 
-                    val recipeId = args.recipeId
-                    val recipe = RecipesRepositoryStub.getRecipeById(recipeId)?.toUiModel()
+                    val viewModel: RecipeDetailsViewModel = viewModel()
 
-                    val coroutineScope = rememberCoroutineScope()
-
-                    val isFavorite by favoriteManager
-                        .isFavoriteFlow(recipeId)
-                        .collectAsState(initial = false)
+                    LaunchedEffect(args.recipeId) {
+                        viewModel.loadRecipe(args.recipeId)
+                    }
 
                     RecipeDetailsScreen(
-                        recipeId = recipeId,
-                        initialRecipe = recipe,
-                        onBackClick = { navController.popBackStack() },
-                        isFavorite = isFavorite,
-                        onFavoriteToggle = {
-                            coroutineScope.launch {
-                                if (isFavorite) {
-                                    favoriteManager.removeFavorite(recipeId)
-                                } else {
-                                    favoriteManager.addFavorite(recipeId)
-                                }
-                            }
-                        }
+                        viewModel = viewModel,
+                        onBackClick = { navController.navigateUp() }
                     )
                 }
             }

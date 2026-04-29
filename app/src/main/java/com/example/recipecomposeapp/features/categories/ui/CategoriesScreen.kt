@@ -62,7 +62,7 @@ fun CategoriesScreen(
                         modifier = Modifier.padding(Dimens.paddingLarge)
                     ) {
                         Text(
-                            text = uiState.error!!,
+                            text = uiState.error.orEmpty(),
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodyLarge
                         )
