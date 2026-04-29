@@ -8,4 +8,5 @@
     <string name="cooking_method">Способ приготовления</string>
     <string name="favorites_empty_state">Вы еще не добавили ни одного рецепта в избранное</string>
     <string name="retry_attempt">Повторить попытку</string>
+    <string name="empty_category_message">В этой категории пока нет рецептов</string>
 </resources>
