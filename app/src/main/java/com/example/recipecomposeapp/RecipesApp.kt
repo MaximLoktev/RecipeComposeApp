@@ -82,9 +82,15 @@ fun RecipesApp(externalIntent: Intent? = null) {
                 modifier = Modifier.padding(paddingValues)
             ) {
                 composable<Destination.Categories> {
-                    CategoriesScreen { categoryId, categoryTitle ->
-                        navController.navigate(Destination.Recipes(categoryId, categoryTitle))
-                    }
+                    CategoriesScreen(
+                        onCategoryClick = { categoryId, categoryTitle, categoryImageUrl ->
+                            navController.navigate(
+                                Destination.Recipes(
+                                    categoryId, categoryTitle, categoryImageUrl
+                                )
+                            )
+                        }
+                    )
                 }
                 composable<Destination.Favorites> {
                     FavoritesScreen(
