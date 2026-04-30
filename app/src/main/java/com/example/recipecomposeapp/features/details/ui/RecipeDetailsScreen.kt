@@ -85,7 +85,7 @@ fun RecipeDetailsScreen(
             }
         }
         else -> {
-            val currentRecipe = uiState.recipe!!
+            val currentRecipe = uiState.recipe ?: return
 
             Column(
                 modifier = modifier
