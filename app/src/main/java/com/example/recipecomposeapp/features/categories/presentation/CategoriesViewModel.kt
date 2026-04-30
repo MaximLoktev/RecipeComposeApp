@@ -23,11 +23,8 @@ class CategoriesViewModel : ViewModel() {
 
     private fun loadCategories() {
         viewModelScope.launch {
-            _uiState.update { currentState ->
-                currentState.copy(
-                    isLoading = true,
-                    error = null
-                )
+            _uiState.update {
+                it.copy(isLoading = true, error = null)
             }
 
             try {
@@ -35,18 +32,12 @@ class CategoriesViewModel : ViewModel() {
                     .getCategories()
                     .map { it.toUiModel() }
 
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        isLoading = false,
-                        categories = loadedCategories
-                    )
+                _uiState.update {
+                    it.copy(isLoading = false, categories = loadedCategories)
                 }
             } catch (e: Exception) {
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        isLoading = false,
-                        error = e.localizedMessage ?: "Произошла неизвестная ошибка"
-                    )
+                _uiState.update {
+                    it.copy(isLoading = false, error = e.localizedMessage ?: "Произошла неизвестная ошибка")
                 }
             }
         }

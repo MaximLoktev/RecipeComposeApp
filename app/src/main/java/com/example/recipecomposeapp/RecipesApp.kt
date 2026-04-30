@@ -101,12 +101,8 @@ fun RecipesApp(externalIntent: Intent? = null) {
                         }
                     )
                 }
-                composable<Destination.Recipes> { backStackEntry ->
-                    val args = backStackEntry.toRoute<Destination.Recipes>()
-
+                composable<Destination.Recipes> {
                     RecipesScreen(
-                        categoryId = args.categoryId,
-                        categoryTitle = args.categoryTitle,
                         onRecipeClick = { recipeId, _ ->
                             navController.navigate(Destination.RecipeDetails(recipeId))
                         },

@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -66,8 +67,17 @@ fun CategoriesScreen(
                             style = MaterialTheme.typography.bodyLarge
                         )
 
-                        Button(onClick = { viewModel.retryLoading() }) {
-                            Text(stringResource(R.string.retry_attempt))
+                        Button(
+                            onClick = { viewModel.retryLoading() },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.tertiary,
+                                contentColor = MaterialTheme.colorScheme.onTertiary
+                            ),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.retry_attempt),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
                         }
                     }
                 }
