@@ -1,0 +1,11 @@
+package com.example.recipecomposeapp.features.favorites.presentation.model
+
+import com.example.recipecomposeapp.features.recipes.presentation.model.RecipeUiModel
+
+data class FavoritesUiState(
+    val favoriteRecipes: List<RecipeUiModel> = emptyList(),
+    val isLoading: Boolean = false
+) {
+    val isEmpty: Boolean
+        get() = !isLoading && favoriteRecipes.isEmpty()
+}
