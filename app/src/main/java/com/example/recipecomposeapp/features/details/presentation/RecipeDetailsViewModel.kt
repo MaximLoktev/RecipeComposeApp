@@ -2,7 +2,10 @@ package com.example.recipecomposeapp.features.details.presentation
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
+import com.example.recipecomposeapp.core.ui.navigation.Destination
 import com.example.recipecomposeapp.core.utils.FavoriteDataStoreManager
 import com.example.recipecomposeapp.data.repository.RecipesRepositoryStub
 import com.example.recipecomposeapp.features.details.presentation.model.RecipeDetailsUiState
@@ -15,7 +18,10 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class RecipeDetailsViewModel(application: Application) : AndroidViewModel(application) {
+class RecipeDetailsViewModel(
+    application: Application,
+    savedStateHandle: SavedStateHandle,
+) : AndroidViewModel(application) {
 
     private val favoriteManager = FavoriteDataStoreManager(application)
 
@@ -23,7 +29,13 @@ class RecipeDetailsViewModel(application: Application) : AndroidViewModel(applic
 
     val uiState: StateFlow<RecipeDetailsUiState> = _uiState.asStateFlow()
 
-    fun loadRecipe(recipeId: Int) {
+    init {
+        val detailsRoute = savedStateHandle.toRoute<Destination.RecipeDetails>()
+
+        loadRecipe(detailsRoute.recipeId)
+    }
+
+    private fun loadRecipe(recipeId: Int) {
         viewModelScope.launch {
             _uiState.update {
                 it.copy(isLoading = true, error = null)

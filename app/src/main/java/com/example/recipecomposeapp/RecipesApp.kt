@@ -17,7 +17,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
-import androidx.navigation.toRoute
 import com.example.recipecomposeapp.core.Constants.DEEP_LINK_BASE_URL
 import com.example.recipecomposeapp.core.Constants.DEEP_LINK_SCHEME
 import com.example.recipecomposeapp.core.ui.navigation.BottomNavigation
@@ -114,14 +113,8 @@ fun RecipesApp(externalIntent: Intent? = null) {
                             basePath = "$DEEP_LINK_BASE_URL/recipe"
                         )
                     )
-                ) { backStackEntry ->
-                    val args = backStackEntry.toRoute<Destination.RecipeDetails>()
-
+                ) { _ ->
                     val viewModel: RecipeDetailsViewModel = viewModel()
-
-                    LaunchedEffect(args.recipeId) {
-                        viewModel.loadRecipe(args.recipeId)
-                    }
 
                     RecipeDetailsScreen(
                         viewModel = viewModel,
