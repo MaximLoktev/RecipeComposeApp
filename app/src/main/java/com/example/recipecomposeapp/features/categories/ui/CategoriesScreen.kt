@@ -53,7 +53,7 @@ fun CategoriesScreen(
         ) {
             when {
                 uiState.isLoading -> {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                    CircularProgressIndicator()
                 }
                 uiState.error != null -> {
                     Column(
