@@ -59,6 +59,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
 
+    implementation(platform(libs.okhttp.bom))
+    implementation(libs.okhttp)
+
     testImplementation(libs.junit)
 
     androidTestImplementation(libs.androidx.junit)
