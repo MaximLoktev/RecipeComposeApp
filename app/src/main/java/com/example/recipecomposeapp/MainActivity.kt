@@ -27,14 +27,16 @@ class MainActivity : ComponentActivity() {
         thread {
             Log.d("NetworkTest", "Выполняю запрос на потоке: ${Thread.currentThread().name}")
 
+            var connection: HttpURLConnection? = null
+
             try {
                 val url = URL("https://recipes.androidsprint.ru/api/category")
 
-                val connection = url.openConnection() as HttpURLConnection
+                connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "GET"
                 connection.connect()
 
-                val responseText = connection.inputStream.bufferedReader().readText()
+                val responseText = connection.inputStream.bufferedReader().use { it.readText() }
 
                 Log.d("NetworkTest", "Сырой ответ от сервера:\n$responseText")
 
@@ -47,6 +49,8 @@ class MainActivity : ComponentActivity() {
                 }
             } catch (e: Exception) {
                 Log.e("NetworkTest", "Произошла ошибка при выполнении запроса: ${e.message}", e)
+            } finally {
+                connection?.disconnect()
             }
         }
 
