@@ -31,15 +31,18 @@ class MainActivity : ComponentActivity() {
         Log.d("Pool", "Метод onCreate() выполняется на потоке: ${Thread.currentThread().name}")
 
         threadPool.execute {
+
+            var connection: HttpURLConnection? = null
+
             try {
                 Log.d("Pool", "Выполняю запрос категорий на потоке: ${Thread.currentThread().name}")
 
                 val url = URL("https://recipes.androidsprint.ru/api/category")
 
-                val connection = url.openConnection() as HttpURLConnection
+                connection = url.openConnection() as HttpURLConnection
                 connection.connect()
 
-                val responseText = connection.inputStream.bufferedReader().readText()
+                val responseText = connection.inputStream.bufferedReader().use { it.readText() }
 
                 val categories: List<CategoryDto> = jsonConfig.decodeFromString(responseText)
 
@@ -47,15 +50,18 @@ class MainActivity : ComponentActivity() {
 
                 categories.forEach { category ->
                     threadPool.execute {
+
+                        var recipesConn: HttpURLConnection? = null
+
                         try {
                             Log.d("Pool", "Запрашиваю рецепты для '${category.title}' на потоке: ${Thread.currentThread().name}")
 
                             val recipesUrl = URL("https://recipes.androidsprint.ru/api/category/${category.id}/recipes")
 
-                            val recipesConn = recipesUrl.openConnection() as HttpURLConnection
+                            recipesConn = recipesUrl.openConnection() as HttpURLConnection
                             recipesConn.connect()
 
-                            val recipesText = recipesConn.inputStream.bufferedReader().readText()
+                            val recipesText = recipesConn.inputStream.bufferedReader().use { it.readText() }
 
                             val recipes: List<RecipeDto> = jsonConfig.decodeFromString(recipesText)
 
@@ -63,11 +69,15 @@ class MainActivity : ComponentActivity() {
 
                         } catch (e: Exception) {
                             Log.e("Pool", "Ошибка загрузки рецептов для '${category.title}': ${e.message}", e)
+                        } finally {
+                            recipesConn?.disconnect()
                         }
                     }
                 }
             } catch (e: Exception) {
                 Log.e("Pool", "Ошибка загрузки списка категорий: ${e.message}", e)
+            } finally {
+                connection?.disconnect()
             }
         }
 
