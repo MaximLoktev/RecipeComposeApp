@@ -34,14 +34,18 @@ class MainActivity : ComponentActivity() {
 
             var connection: HttpURLConnection? = null
 
-            var connection: HttpURLConnection? = null
-
             try {
                 Log.d("Pool", "Выполняю запрос категорий на потоке: ${Thread.currentThread().name}")
 
                 val url = URL("https://recipes.androidsprint.ru/api/category")
 
-                connection = url.openConnection() as HttpURLConnection
+                connection = url.openConnection() as? HttpURLConnection
+
+                if (connection == null) {
+                    Log.e("Pool", "Ошибка: не удалось создать HttpURLConnection для категорий")
+                    return@execute
+                }
+
                 connection.connect()
 
                 val responseText = connection.inputStream.bufferedReader().use { it.readText() }
@@ -60,7 +64,13 @@ class MainActivity : ComponentActivity() {
 
                             val recipesUrl = URL("https://recipes.androidsprint.ru/api/category/${category.id}/recipes")
 
-                            recipesConn = recipesUrl.openConnection() as HttpURLConnection
+                            recipesConn = recipesUrl.openConnection() as? HttpURLConnection
+
+                            if (recipesConn == null) {
+                                Log.e("Pool", "Ошибка: не удалось создать HttpURLConnection для рецептов (${category.title})")
+                                return@execute
+                            }
+
                             recipesConn.connect()
 
                             val recipesText = recipesConn.inputStream.bufferedReader().use { it.readText() }
