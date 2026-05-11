@@ -33,6 +33,9 @@ class MainActivity : ComponentActivity() {
         Log.d("OkHttpTest", "Метод onCreate() выполняется на потоке: ${Thread.currentThread().name}")
 
         threadPool.execute {
+
+            var connection: HttpURLConnection? = null
+
             try {
                 Log.d("OkHttpTest", "Выполняю запрос категорий на потоке: ${Thread.currentThread().name}")
 
@@ -48,6 +51,9 @@ class MainActivity : ComponentActivity() {
 
                 categories.forEach { category ->
                     threadPool.execute {
+
+                        var recipesConn: HttpURLConnection? = null
+
                         try {
                             Log.d("OkHttpTest", "Запрашиваю рецепты для '${category.title}' на потоке: ${Thread.currentThread().name}")
 
