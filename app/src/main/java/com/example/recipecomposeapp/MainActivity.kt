@@ -10,45 +10,84 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.example.recipecomposeapp.data.model.CategoryDto
+import com.example.recipecomposeapp.data.model.RecipeDto
 import kotlinx.serialization.json.Json
 import java.net.HttpURLConnection
 import java.net.URL
-import kotlin.concurrent.thread
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 class MainActivity : ComponentActivity() {
 
     private var currentIntent by mutableStateOf<Intent?>(null)
 
+    private val threadPool: ExecutorService = Executors.newFixedThreadPool(10)
+
+    private val jsonConfig = Json { ignoreUnknownKeys = true }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Log.d("NetworkTest", "Метод onCreate() выполняется на потоке: ${Thread.currentThread().name}")
+        Log.d("Pool", "Метод onCreate() выполняется на потоке: ${Thread.currentThread().name}")
 
-        thread {
-            Log.d("NetworkTest", "Выполняю запрос на потоке: ${Thread.currentThread().name}")
+        threadPool.execute {
 
             var connection: HttpURLConnection? = null
 
             try {
+                Log.d("Pool", "Выполняю запрос категорий на потоке: ${Thread.currentThread().name}")
+
                 val url = URL("https://recipes.androidsprint.ru/api/category")
 
-                connection = url.openConnection() as HttpURLConnection
-                connection.requestMethod = "GET"
+                connection = url.openConnection() as? HttpURLConnection
+
+                if (connection == null) {
+                    Log.e("Pool", "Ошибка: не удалось создать HttpURLConnection для категорий")
+                    return@execute
+                }
+
                 connection.connect()
 
                 val responseText = connection.inputStream.bufferedReader().use { it.readText() }
 
-                Log.d("NetworkTest", "Сырой ответ от сервера:\n$responseText")
+                val categories: List<CategoryDto> = jsonConfig.decodeFromString(responseText)
 
-                val categories: List<CategoryDto> = Json.decodeFromString(responseText)
-
-                Log.d("NetworkTest", "Количество полученных категорий: ${categories.size}")
+                Log.d("Pool", "Количество полученных категорий: ${categories.size}")
 
                 categories.forEach { category ->
-                    Log.d("NetworkTest", "Категория: ${category.title}")
+                    threadPool.execute {
+
+                        var recipesConn: HttpURLConnection? = null
+
+                        try {
+                            Log.d("Pool", "Запрашиваю рецепты для '${category.title}' на потоке: ${Thread.currentThread().name}")
+
+                            val recipesUrl = URL("https://recipes.androidsprint.ru/api/category/${category.id}/recipes")
+
+                            recipesConn = recipesUrl.openConnection() as? HttpURLConnection
+
+                            if (recipesConn == null) {
+                                Log.e("Pool", "Ошибка: не удалось создать HttpURLConnection для рецептов (${category.title})")
+                                return@execute
+                            }
+
+                            recipesConn.connect()
+
+                            val recipesText = recipesConn.inputStream.bufferedReader().use { it.readText() }
+
+                            val recipes: List<RecipeDto> = jsonConfig.decodeFromString(recipesText)
+
+                            Log.d("Pool", "Категория '${category.title}' -> загружено рецептов: ${recipes.size} (Поток: ${Thread.currentThread().name})")
+
+                        } catch (e: Exception) {
+                            Log.e("Pool", "Ошибка загрузки рецептов для '${category.title}': ${e.message}", e)
+                        } finally {
+                            recipesConn?.disconnect()
+                        }
+                    }
                 }
             } catch (e: Exception) {
-                Log.e("NetworkTest", "Произошла ошибка при выполнении запроса: ${e.message}", e)
+                Log.e("Pool", "Ошибка загрузки списка категорий: ${e.message}", e)
             } finally {
                 connection?.disconnect()
             }
@@ -61,6 +100,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             RecipesApp(currentIntent)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        threadPool.shutdown()
+        Log.d("Pool", "Пул потоков остановлен в onDestroy()")
     }
 
     override fun onNewIntent(intent: Intent) {

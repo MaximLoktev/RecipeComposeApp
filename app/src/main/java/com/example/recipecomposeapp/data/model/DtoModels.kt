@@ -10,6 +10,7 @@ data class CategoryDto(
     val imageUrl: String,
 )
 
+@Serializable
 data class RecipeDto(
     val id: Int,
     val title: String,
@@ -18,6 +19,7 @@ data class RecipeDto(
     val imageUrl: String,
 )
 
+@Serializable
 data class IngredientDto(
     val quantity: String,
     val unitOfMeasure: String,
