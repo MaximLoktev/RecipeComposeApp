@@ -34,6 +34,8 @@ class MainActivity : ComponentActivity() {
 
             var connection: HttpURLConnection? = null
 
+            var connection: HttpURLConnection? = null
+
             try {
                 Log.d("Pool", "Выполняю запрос категорий на потоке: ${Thread.currentThread().name}")
 
