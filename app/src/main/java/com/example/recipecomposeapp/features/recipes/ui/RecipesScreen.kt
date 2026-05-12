@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipecomposeapp.R
 import com.example.recipecomposeapp.core.ui.components.ScreenHeader
@@ -31,21 +30,20 @@ import com.example.recipecomposeapp.features.recipes.presentation.model.RecipeUi
 
 @Composable
 fun RecipesScreen(
+    viewModel: RecipesViewModel,
     onRecipeClick: (Int, RecipeUiModel) -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
 
-    val viewModel: RecipesViewModel = viewModel()
-
     val uiState by viewModel.uiState.collectAsState()
 
     Column(modifier = modifier.fillMaxSize()) {
-        val headerPainter = if (uiState.categoryImageUrl.isNotEmpty()) {
-            rememberAsyncImagePainter(model = uiState.categoryImageUrl)
-        } else {
-            painterResource(id = R.drawable.img_placeholder)
-        }
+        val headerPainter = rememberAsyncImagePainter(
+            model = uiState.categoryImageUrl,
+            error = painterResource(R.drawable.img_error),
+            placeholder = painterResource(R.drawable.img_placeholder)
+        )
 
         ScreenHeader(
             painter = headerPainter,

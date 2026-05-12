@@ -4,44 +4,44 @@ import com.example.recipecomposeapp.data.model.CategoryDto
 import com.example.recipecomposeapp.data.model.IngredientDto
 import com.example.recipecomposeapp.data.model.RecipeDto
 
-object RecipesRepositoryStub {
+object RecipesRepositoryStub : RecipesRepository {
 
     private val categories: List<CategoryDto> = listOf(
         CategoryDto(
             id = 0,
             title = "Бургеры",
             description = "Рецепты всех популярных видов бургеров",
-            imageUrl = "burger.jpg",
+            imageUrl = "burger.png",
         ),
         CategoryDto(
             id = 1,
             title = "Десерты",
             description = "Самые вкусные рецепты десертов специально для вас",
-            imageUrl = "dessert.jpg",
+            imageUrl = "dessert.png",
         ),
         CategoryDto(
             id = 2,
             title = "Пицца",
             description = "Пицца на любой вкус и цвет. Лучшая подборка для тебя",
-            imageUrl = "pizza.jpg",
+            imageUrl = "pizza.png",
         ),
         CategoryDto(
             id = 3,
             title = "Рыба",
             description = "Печеная, жареная, сушеная, любая рыба на твой вкус",
-            imageUrl = "fish.jpg",
+            imageUrl = "fish.png",
         ),
         CategoryDto(
             id = 4,
             title = "Супы",
             description = "От классики до экзотики: мир в одной тарелке",
-            imageUrl = "soup.jpg",
+            imageUrl = "soup.png",
         ),
         CategoryDto(
             id = 5,
             title = "Салаты",
             description = "Хрустящий калейдоскоп под соусом вдохновения",
-            imageUrl = "salad.jpg",
+            imageUrl = "salad.png",
         ),
     )
 
@@ -557,9 +557,9 @@ object RecipesRepositoryStub {
         )
     )
 
-    fun getCategories(): List<CategoryDto> = categories
+    override suspend fun getCategories(): List<CategoryDto> = categories
 
-    fun getRecipesByCategoryId(categoryId: Int): List<RecipeDto> =
+    override suspend fun getRecipesByCategory(categoryId: Int): List<RecipeDto> =
         when (categoryId) {
             0 -> burgerRecipes
             1 -> dessertRecipes
@@ -570,9 +570,10 @@ object RecipesRepositoryStub {
             else -> emptyList()
         }
 
-    fun getRecipeById(recipeId: Int): RecipeDto? {
+    override suspend fun getRecipe(recipeId: Int): RecipeDto {
         return categories
-            .flatMap { category -> getRecipesByCategoryId(category.id) }
+            .flatMap { category -> getRecipesByCategory(category.id) }
             .find { recipe -> recipe.id == recipeId }
+            ?: throw NoSuchElementException("Рецепт с ID $recipeId не найден")
     }
 }
