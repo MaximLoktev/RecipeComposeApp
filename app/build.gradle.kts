@@ -62,6 +62,9 @@ dependencies {
     implementation(platform(libs.okhttp.bom))
     implementation(libs.okhttp)
 
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.serialization)
+
     testImplementation(libs.junit)
 
     androidTestImplementation(libs.androidx.junit)
