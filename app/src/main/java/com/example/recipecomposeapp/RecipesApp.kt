@@ -34,11 +34,11 @@ import com.example.recipecomposeapp.features.favorites.presentation.FavoritesVie
 import com.example.recipecomposeapp.features.favorites.ui.FavoritesScreen
 import com.example.recipecomposeapp.features.recipes.presentation.RecipesViewModel
 import com.example.recipecomposeapp.features.recipes.ui.RecipesScreen
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
 @Composable
 fun RecipesApp(externalIntent: Intent? = null) {
