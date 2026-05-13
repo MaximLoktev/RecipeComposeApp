@@ -9,65 +9,52 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.example.recipecomposeapp.data.model.CategoryDto
-import com.example.recipecomposeapp.data.model.RecipeDto
+import androidx.lifecycle.lifecycleScope
+import com.example.recipecomposeapp.core.network.NetworkConfig
+import com.example.recipecomposeapp.core.network.api.RecipesApiService
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+import okhttp3.MediaType.Companion.toMediaType
+import retrofit2.Retrofit
 
 class MainActivity : ComponentActivity() {
 
     private var currentIntent by mutableStateOf<Intent?>(null)
 
-    private val okHttpClient = OkHttpClient()
+    private val jsonConfig = Json {
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+    }
 
-    private val threadPool: ExecutorService = Executors.newFixedThreadPool(10)
+    private val retrofit = Retrofit.Builder()
+        .baseUrl(NetworkConfig.BASE_URL)
+        .addConverterFactory(jsonConfig.asConverterFactory("application/json".toMediaType()))
+        .build()
 
-    private val jsonConfig = Json { ignoreUnknownKeys = true }
+    private val apiService = retrofit.create(RecipesApiService::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Log.d("OkHttpTest", "Метод onCreate() выполняется на потоке: ${Thread.currentThread().name}")
-
-        threadPool.execute {
+        lifecycleScope.launch {
             try {
-                Log.d("OkHttpTest", "Выполняю запрос категорий на потоке: ${Thread.currentThread().name}")
+                val categories = apiService.getCategories()
 
-                val categoryRequest = Request.Builder()
-                    .url("https://recipes.androidsprint.ru/api/category")
-                    .build()
-
-                val responseText = okHttpClient.newCall(categoryRequest).execute().body.string()
-
-                val categories: List<CategoryDto> = jsonConfig.decodeFromString(responseText)
-
-                Log.d("OkHttpTest", "Количество полученных категорий: ${categories.size}")
+                Log.d("RetrofitTest", "Количество полученных категорий: ${categories.size}")
 
                 categories.forEach { category ->
-                    threadPool.execute {
-                        try {
-                            Log.d("OkHttpTest", "Запрашиваю рецепты для '${category.title}' на потоке: ${Thread.currentThread().name}")
+                    try {
+                        val recipes = apiService.getRecipesByCategory(category.id)
 
-                            val recipesRequest = Request.Builder()
-                                .url("https://recipes.androidsprint.ru/api/category/${category.id}/recipes")
-                                .build()
+                        Log.d("RetrofitTest", "Категория '${category.title}' -> загружено рецептов: ${recipes.size}")
 
-                            val recipesText = okHttpClient.newCall(recipesRequest).execute().body.string()
-
-                            val recipes: List<RecipeDto> = jsonConfig.decodeFromString(recipesText)
-
-                            Log.d("OkHttpTest", "Категория '${category.title}' -> загружено рецептов: ${recipes.size} (Поток: ${Thread.currentThread().name})")
-
-                        } catch (e: Exception) {
-                            Log.e("OkHttpTest", "Ошибка загрузки рецептов для '${category.title}': ${e.message}", e)
-                        }
+                    } catch (e: Exception) {
+                        Log.e("RetrofitTest", "Ошибка загрузки рецептов для '${category.title}': ${e.message}", e)
                     }
                 }
             } catch (e: Exception) {
-                Log.e("OkHttpTest", "Ошибка загрузки списка категорий: ${e.message}", e)
+                Log.e("RetrofitTest", "Ошибка загрузки списка категорий: ${e.message}", e)
             }
         }
 
@@ -78,13 +65,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             RecipesApp(currentIntent)
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-
-        threadPool.shutdown()
-        Log.d("OkHttpTest", "Пул потоков остановлен в onDestroy()")
     }
 
     override fun onNewIntent(intent: Intent) {
