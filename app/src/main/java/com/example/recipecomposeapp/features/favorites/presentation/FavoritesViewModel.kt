@@ -24,7 +24,10 @@ class FavoritesViewModel(
         .map { idsSet ->
             val recipes = idsSet.mapNotNull { idString ->
                 val id = idString.toIntOrNull()
-                id?.let { repository.getRecipe(it).toUiModel() }
+
+                id?.let {
+                    runCatching { repository.getRecipe(it).toUiModel() }.getOrNull()
+                }
             }
             FavoritesUiState(favoriteRecipes = recipes, isLoading = false)
         }

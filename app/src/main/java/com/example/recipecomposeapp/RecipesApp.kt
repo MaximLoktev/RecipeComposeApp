@@ -27,6 +27,7 @@ import com.example.recipecomposeapp.core.ui.navigation.Destination
 import com.example.recipecomposeapp.core.ui.theme.RecipeComposeAppTheme
 import com.example.recipecomposeapp.core.utils.FavoriteDataStoreManager
 import com.example.recipecomposeapp.data.repository.RecipesRepositoryImpl
+import com.example.recipecomposeapp.features.categories.presentation.CategoriesViewModel
 import com.example.recipecomposeapp.features.categories.ui.CategoriesScreen
 import com.example.recipecomposeapp.features.details.presentation.RecipeDetailsViewModel
 import com.example.recipecomposeapp.features.details.ui.RecipeDetailsScreen
@@ -109,14 +110,13 @@ fun RecipesApp(externalIntent: Intent? = null) {
                 modifier = Modifier.padding(paddingValues)
             ) {
                 composable<Destination.Categories> {
-                    CategoriesScreen(
-                        repository = repository,
-                        onCategoryClick = { categoryId, categoryTitle, categoryImageUrl ->
-//                            val encodedUrl = URLEncoder.encode(
-//                                categoryImageUrl,
-//                                StandardCharsets.UTF_8.toString()
-//                            )
+                    val viewModel = remember {
+                        CategoriesViewModel(repository = repository)
+                    }
 
+                    CategoriesScreen(
+                        viewModel = viewModel,
+                        onCategoryClick = { categoryId, categoryTitle, categoryImageUrl ->
                             navController.navigate(
                                 Destination.Recipes(
                                     categoryId, categoryTitle, categoryImageUrl
@@ -126,7 +126,7 @@ fun RecipesApp(externalIntent: Intent? = null) {
                     )
                 }
                 composable<Destination.Favorites> {
-                    val application = context.applicationContext as Application
+                    val application = context.applicationContext as? Application ?: return@composable
 
                     val viewModel = remember {
                         FavoritesViewModel(
@@ -170,7 +170,7 @@ fun RecipesApp(externalIntent: Intent? = null) {
                         )
                     )
                 ) { backStackEntry ->
-                    val application = context.applicationContext as Application
+                    val application = context.applicationContext as? Application ?: return@composable
 
                     val args = backStackEntry.toRoute<Destination.RecipeDetails>()
 
