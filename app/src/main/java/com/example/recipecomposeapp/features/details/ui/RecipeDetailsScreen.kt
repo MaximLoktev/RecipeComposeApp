@@ -24,8 +24,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipecomposeapp.R
 import com.example.recipecomposeapp.core.ui.components.ScreenHeader
@@ -43,7 +43,7 @@ private const val SLIDER_STEPS = 10
 fun RecipeDetailsScreen(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: RecipeDetailsViewModel = viewModel(),
+    viewModel: RecipeDetailsViewModel,
 ) {
 
     val context = LocalContext.current
@@ -93,10 +93,14 @@ fun RecipeDetailsScreen(
                     .background(MaterialTheme.colorScheme.background)
                     .verticalScroll(rememberScrollState())
             ) {
+                val headerPainter = rememberAsyncImagePainter(
+                    model = currentRecipe.imageUrl,
+                    error = painterResource(R.drawable.img_error),
+                    placeholder = painterResource(R.drawable.img_placeholder)
+                )
+
                 ScreenHeader(
-                    painter = rememberAsyncImagePainter(
-                        model = currentRecipe.imageUrl.ifEmpty { R.drawable.bcg_categories }
-                    ),
+                    painter = headerPainter,
                     contentDescription = currentRecipe.title,
                     text = currentRecipe.title.uppercase(),
                     onBackClick = onBackClick,

@@ -59,11 +59,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
 
-    implementation(platform(libs.okhttp.bom))
-    implementation(libs.okhttp)
-
     implementation(libs.retrofit)
-    implementation(libs.retrofit.serialization)
+    implementation(libs.retrofit.converter.serialization)
 
     testImplementation(libs.junit)
 

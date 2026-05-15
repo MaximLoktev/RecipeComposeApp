@@ -22,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipecomposeapp.R
 import com.example.recipecomposeapp.core.ui.components.ScreenHeader
 import com.example.recipecomposeapp.core.ui.theme.Dimens
@@ -30,11 +29,10 @@ import com.example.recipecomposeapp.features.categories.presentation.CategoriesV
 
 @Composable
 fun CategoriesScreen(
+    viewModel: CategoriesViewModel,
     onCategoryClick: (Int, String, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-
-    val viewModel: CategoriesViewModel = viewModel()
 
     val uiState by viewModel.uiState.collectAsState()
 
