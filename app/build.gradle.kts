@@ -38,6 +38,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -61,6 +62,7 @@ dependencies {
 
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.serialization)
+    implementation(libs.okhttp.logging)
 
     testImplementation(libs.junit)
 

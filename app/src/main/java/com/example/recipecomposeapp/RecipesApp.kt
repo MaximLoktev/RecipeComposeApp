@@ -38,8 +38,11 @@ import com.example.recipecomposeapp.features.recipes.ui.RecipesScreen
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
+import java.util.concurrent.TimeUnit
 
 @Composable
 fun RecipesApp(externalIntent: Intent? = null) {
@@ -53,9 +56,29 @@ fun RecipesApp(externalIntent: Intent? = null) {
         }
     }
 
+    val loggingInterceptor = remember {
+        HttpLoggingInterceptor().apply {
+            level = if (BuildConfig.DEBUG) {
+                HttpLoggingInterceptor.Level.BODY
+            } else {
+                HttpLoggingInterceptor.Level.NONE
+            }
+        }
+    }
+
+    val okHttpClient = remember {
+        OkHttpClient.Builder()
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .addInterceptor(loggingInterceptor)
+            .build()
+    }
+
     val retrofit = remember {
         Retrofit.Builder()
             .baseUrl(NetworkConfig.BASE_URL)
+            .client(okHttpClient)
             .addConverterFactory(jsonConfig.asConverterFactory("application/json".toMediaType()))
             .build()
     }
