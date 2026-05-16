@@ -19,9 +19,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import coil.compose.rememberAsyncImagePainter
 import com.example.recipecomposeapp.R
 import com.example.recipecomposeapp.core.ui.components.ScreenHeader
 import com.example.recipecomposeapp.core.ui.theme.Dimens
@@ -39,14 +37,8 @@ fun RecipesScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     Column(modifier = modifier.fillMaxSize()) {
-        val headerPainter = rememberAsyncImagePainter(
-            model = uiState.categoryImageUrl,
-            error = painterResource(R.drawable.img_error),
-            placeholder = painterResource(R.drawable.img_placeholder)
-        )
-
         ScreenHeader(
-            painter = headerPainter,
+            imageModel = uiState.categoryImageUrl,
             contentDescription = uiState.categoryTitle,
             text = uiState.categoryTitle.uppercase(),
             onBackClick = onBackClick,
