@@ -24,9 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import coil.compose.rememberAsyncImagePainter
 import com.example.recipecomposeapp.R
 import com.example.recipecomposeapp.core.ui.components.ScreenHeader
 import com.example.recipecomposeapp.core.ui.theme.Dimens
@@ -93,14 +91,8 @@ fun RecipeDetailsScreen(
                     .background(MaterialTheme.colorScheme.background)
                     .verticalScroll(rememberScrollState())
             ) {
-                val headerPainter = rememberAsyncImagePainter(
-                    model = currentRecipe.imageUrl,
-                    error = painterResource(R.drawable.img_error),
-                    placeholder = painterResource(R.drawable.img_placeholder)
-                )
-
                 ScreenHeader(
-                    painter = headerPainter,
+                    imageModel = currentRecipe.imageUrl,
                     contentDescription = currentRecipe.title,
                     text = currentRecipe.title.uppercase(),
                     onBackClick = onBackClick,

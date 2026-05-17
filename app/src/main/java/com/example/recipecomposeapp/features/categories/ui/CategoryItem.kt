@@ -12,17 +12,12 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import com.example.recipecomposeapp.R
-import com.example.recipecomposeapp.features.categories.presentation.model.CategoryUiModel
+import com.example.recipecomposeapp.core.ui.components.RecipeImage
 import com.example.recipecomposeapp.core.ui.theme.Dimens
+import com.example.recipecomposeapp.features.categories.presentation.model.CategoryUiModel
 
 @Composable
 fun CategoryItem(
@@ -30,16 +25,6 @@ fun CategoryItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-
-    val context = LocalContext.current
-
-    val imageRequest = remember(category.imageUrl, context) {
-        ImageRequest.Builder(context)
-            .data(category.imageUrl)
-            .crossfade(true)
-            .build()
-    }
-
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -55,15 +40,13 @@ fun CategoryItem(
         Column(
             verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall)
         ) {
-            AsyncImage(
-                model = imageRequest,
+            RecipeImage(
+                imageUrl = category.imageUrl,
                 contentDescription = category.title,
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1.2f),
-                contentScale = ContentScale.Crop,
-                placeholder = painterResource(R.drawable.img_placeholder),
-                error = painterResource(R.drawable.img_error)
+                contentScale = ContentScale.Crop
             )
 
             Column(

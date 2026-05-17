@@ -11,16 +11,11 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import com.example.recipecomposeapp.R
-import com.example.recipecomposeapp.features.recipes.presentation.model.RecipeUiModel
+import com.example.recipecomposeapp.core.ui.components.RecipeImage
 import com.example.recipecomposeapp.core.ui.theme.Dimens
+import com.example.recipecomposeapp.features.recipes.presentation.model.RecipeUiModel
 
 @Composable
 fun RecipeItem(
@@ -28,16 +23,6 @@ fun RecipeItem(
     onClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
-    val context = LocalContext.current
-
-    val imageRequest = remember(recipe.imageUrl, context) {
-        ImageRequest.Builder(context)
-            .data(recipe.imageUrl)
-            .crossfade(true)
-            .build()
-    }
-
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -51,15 +36,13 @@ fun RecipeItem(
         )
     ) {
         Column {
-            AsyncImage(
-                model = imageRequest,
+            RecipeImage(
+                imageUrl = recipe.imageUrl,
                 contentDescription = recipe.title,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(Dimens.iconExtraLarge),
-                contentScale = ContentScale.Crop,
-                placeholder = painterResource(id = R.drawable.img_placeholder),
-                error = painterResource(id = R.drawable.img_error)
+                contentScale = ContentScale.Crop
             )
 
             Text(

@@ -2,7 +2,6 @@ package com.example.recipecomposeapp.core.ui.components
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -26,7 +25,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -35,7 +33,7 @@ import com.example.recipecomposeapp.core.ui.theme.Dimens
 
 @Composable
 fun ScreenHeader(
-    painter: Painter,
+    imageModel: Any,
     contentDescription: String,
     text: String,
     onBackClick: (() -> Unit)? = null,
@@ -50,8 +48,8 @@ fun ScreenHeader(
             .height(Dimens.headerHeight)
             .fillMaxWidth()
     ) {
-        Image(
-            painter = painter,
+        RecipeImage(
+            imageUrl = imageModel,
             contentDescription = contentDescription,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop

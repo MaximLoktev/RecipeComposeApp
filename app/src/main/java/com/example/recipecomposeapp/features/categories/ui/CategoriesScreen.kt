@@ -20,7 +20,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.example.recipecomposeapp.R
 import com.example.recipecomposeapp.core.ui.components.ScreenHeader
@@ -40,7 +39,7 @@ fun CategoriesScreen(
 
     Column(modifier = modifier.fillMaxSize()) {
         ScreenHeader(
-            painterResource(id = R.drawable.bcg_categories),
+            imageModel = R.drawable.bcg_categories,
             contentDescription = screenTitle,
             text = screenTitle.uppercase()
         )
