@@ -24,24 +24,29 @@ fun RecipeImage(
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Crop
 ) {
+    val context = LocalContext.current
+
     var isLoading by remember { mutableStateOf(true) }
 
-    val stubResId = R.drawable.img_error
+    val imageRequest = remember(imageUrl, context) {
+        ImageRequest.Builder(context)
+            .data(imageUrl)
+            .crossfade(300)
+            .build()
+    }
 
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
+        val stubResId = R.drawable.img_error
+
         AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(imageUrl)
-                .crossfade(true)
-                .crossfade(300)
-                .build(),
+            model = imageRequest,
             contentDescription = contentDescription,
             modifier = Modifier.fillMaxSize(),
             contentScale = contentScale,
-            placeholder = painterResource(stubResId),
+            placeholder = painterResource(R.drawable.img_placeholder),
             error = painterResource(stubResId),
             fallback = painterResource(stubResId),
             onLoading = { isLoading = true },
