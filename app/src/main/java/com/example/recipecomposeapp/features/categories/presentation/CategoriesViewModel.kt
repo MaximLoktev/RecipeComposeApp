@@ -8,6 +8,7 @@ import com.example.recipecomposeapp.features.categories.presentation.model.toUiM
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -15,37 +16,23 @@ class CategoriesViewModel(
     private val repository: RecipesRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(CategoriesUiState())
+    private val _uiState = MutableStateFlow(CategoriesUiState(isLoading = true))
 
     val uiState: StateFlow<CategoriesUiState> = _uiState.asStateFlow()
 
     init {
-        loadCategories()
+        observeCategories()
     }
 
-    private fun loadCategories() {
+    private fun observeCategories() {
         viewModelScope.launch {
-            _uiState.update {
-                it.copy(isLoading = true, error = null)
-            }
-
-            try {
-                val loadedCategories = repository
-                    .getCategories()
-                    .map { it.toUiModel() }
-
-                _uiState.update {
-                    it.copy(isLoading = false, categories = loadedCategories)
+            repository.getCategories()
+                .map { dto -> dto.map { it.toUiModel() } }
+                .collect { categoriesList ->
+                    _uiState.update { state ->
+                        state.copy(isLoading = false, categories = categoriesList)
+                    }
                 }
-            } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(isLoading = false, error = e.localizedMessage ?: "Произошла неизвестная ошибка")
-                }
-            }
         }
-    }
-
-    fun retryLoading() {
-        loadCategories()
     }
 }

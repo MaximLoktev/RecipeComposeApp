@@ -6,11 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -51,34 +48,8 @@ fun RecipesScreen(
             contentAlignment = Alignment.Center
         ) {
             when {
-                uiState.isLoading -> {
+                uiState.isLoading && uiState.recipes.isEmpty() -> {
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                }
-                uiState.error != null -> {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall),
-                        modifier = Modifier.padding(Dimens.paddingLarge)
-                    ) {
-                        Text(
-                            text = uiState.error.orEmpty(),
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-
-                        Button(
-                            onClick = { viewModel.retry() },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.tertiary,
-                                contentColor = MaterialTheme.colorScheme.onTertiary
-                            ),
-                        ) {
-                            Text(
-                                text = stringResource(R.string.retry_attempt),
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
-                    }
                 }
                 uiState.isEmpty -> {
                     Text(

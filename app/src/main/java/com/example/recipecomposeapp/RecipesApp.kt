@@ -26,6 +26,7 @@ import com.example.recipecomposeapp.core.ui.navigation.BottomNavigation
 import com.example.recipecomposeapp.core.ui.navigation.Destination
 import com.example.recipecomposeapp.core.ui.theme.RecipeComposeAppTheme
 import com.example.recipecomposeapp.core.utils.FavoriteDataStoreManager
+import com.example.recipecomposeapp.data.database.RecipesDatabase
 import com.example.recipecomposeapp.data.repository.RecipesRepositoryImpl
 import com.example.recipecomposeapp.features.categories.presentation.CategoriesViewModel
 import com.example.recipecomposeapp.features.categories.ui.CategoriesScreen
@@ -87,7 +88,9 @@ fun RecipesApp(externalIntent: Intent? = null) {
         retrofit.create(RecipesApiService::class.java)
     }
 
-    val repository = remember { RecipesRepositoryImpl(apiService) }
+    val context = LocalContext.current
+    val database = remember { RecipesDatabase.buildDatabase(context) }
+    val repository = remember { RecipesRepositoryImpl(apiService, database) }
 
     LaunchedEffect(externalIntent) {
         externalIntent?.let {
@@ -96,7 +99,6 @@ fun RecipesApp(externalIntent: Intent? = null) {
         }
     }
 
-    val context = LocalContext.current
     val favoriteManager = remember { FavoriteDataStoreManager(context) }
     val favoriteCount by favoriteManager.getFavoriteCountFlow().collectAsState(initial = 0)
 
