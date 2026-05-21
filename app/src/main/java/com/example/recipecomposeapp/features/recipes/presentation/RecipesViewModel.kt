@@ -9,50 +9,38 @@ import com.example.recipecomposeapp.features.recipes.presentation.model.toUiMode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class RecipesViewModel(
-    private val model: Destination.Recipes,
+    model: Destination.Recipes,
     private val repository: RecipesRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
         RecipesUiState(
             categoryTitle = model.categoryTitle,
-            categoryImageUrl = model.categoryImageUrl
+            categoryImageUrl = model.categoryImageUrl,
+            isLoading = true
         )
     )
 
     val uiState: StateFlow<RecipesUiState> = _uiState.asStateFlow()
 
     init {
-        loadRecipes(model.categoryId)
+        observeRecipes(model.categoryId)
     }
 
-    private fun loadRecipes(categoryId: Int) {
+    private fun observeRecipes(categoryId: Int) {
         viewModelScope.launch {
-            _uiState.update {
-                it.copy(isLoading = true, error = null)
-            }
-
-            try {
-                val loadedRecipes = repository
-                    .getRecipesByCategory(categoryId)
-                    .map { it.toUiModel() }
-
-                _uiState.update {
-                    it.copy(isLoading = false, recipes = loadedRecipes)
+            repository.getRecipesByCategory(categoryId)
+                .map { dto -> dto.map { it.toUiModel() } }
+                .collect { recipesList ->
+                    _uiState.update { state ->
+                        state.copy(isLoading = false, recipes = recipesList)
+                    }
                 }
-            } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(isLoading = false, error = e.localizedMessage ?: "Ошибка загрузки")
-                }
-            }
         }
-    }
-
-    fun retry() {
-        loadRecipes(model.categoryId)
     }
 }

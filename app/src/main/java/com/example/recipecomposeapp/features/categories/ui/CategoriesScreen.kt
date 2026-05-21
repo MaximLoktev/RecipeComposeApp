@@ -6,15 +6,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,59 +43,30 @@ fun CategoriesScreen(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            when {
-                uiState.isLoading -> {
-                    CircularProgressIndicator()
-                }
-                uiState.error != null -> {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall),
-                        modifier = Modifier.padding(Dimens.paddingLarge)
-                    ) {
-                        Text(
-                            text = uiState.error.orEmpty(),
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodyLarge
+            if (uiState.isLoading && uiState.categories.isEmpty()) {
+                CircularProgressIndicator()
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(
+                        horizontal = Dimens.paddingLarge,
+                        vertical = Dimens.paddingLarge
+                    ),
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.paddingLarge),
+                    verticalArrangement = Arrangement.spacedBy(Dimens.paddingLarge)
+                ) {
+                    items(
+                        items = uiState.categories,
+                        key = { category -> category.id }
+                    ) { category ->
+                        CategoryItem(
+                            category = category,
+                            onClick = {
+                                onCategoryClick(category.id, category.title, category.imageUrl)
+                            },
+                            modifier = Modifier.fillMaxWidth()
                         )
-
-                        Button(
-                            onClick = { viewModel.retryLoading() },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.tertiary,
-                                contentColor = MaterialTheme.colorScheme.onTertiary
-                            ),
-                        ) {
-                            Text(
-                                text = stringResource(R.string.retry_attempt),
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
-                    }
-                }
-                else -> {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(
-                            horizontal = Dimens.paddingLarge,
-                            vertical = Dimens.paddingLarge
-                        ),
-                        horizontalArrangement = Arrangement.spacedBy(Dimens.paddingLarge),
-                        verticalArrangement = Arrangement.spacedBy(Dimens.paddingLarge)
-                    ) {
-                        items(
-                            items = uiState.categories,
-                            key = { category -> category.id }
-                        ) { category ->
-                            CategoryItem(
-                                category = category,
-                                onClick = {
-                                    onCategoryClick(category.id, category.title, category.imageUrl)
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
                     }
                 }
             }

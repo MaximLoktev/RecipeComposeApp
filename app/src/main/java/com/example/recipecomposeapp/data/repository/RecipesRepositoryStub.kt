@@ -3,6 +3,8 @@ package com.example.recipecomposeapp.data.repository
 import com.example.recipecomposeapp.data.model.CategoryDto
 import com.example.recipecomposeapp.data.model.IngredientDto
 import com.example.recipecomposeapp.data.model.RecipeDto
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 object RecipesRepositoryStub : RecipesRepository {
 
@@ -557,10 +559,12 @@ object RecipesRepositoryStub : RecipesRepository {
         )
     )
 
-    override suspend fun getCategories(): List<CategoryDto> = categories
+    override fun getCategories(): Flow<List<CategoryDto>> {
+        return flowOf(categories)
+    }
 
-    override suspend fun getRecipesByCategory(categoryId: Int): List<RecipeDto> =
-        when (categoryId) {
+    override fun getRecipesByCategory(categoryId: Int): Flow<List<RecipeDto>> {
+        val recipes = when (categoryId) {
             0 -> burgerRecipes
             1 -> dessertRecipes
             2 -> pizzaRecipes
@@ -569,11 +573,14 @@ object RecipesRepositoryStub : RecipesRepository {
             5 -> saladRecipes
             else -> emptyList()
         }
+        return flowOf(recipes)
+    }
 
     override suspend fun getRecipe(recipeId: Int): RecipeDto {
-        return categories
-            .flatMap { category -> getRecipesByCategory(category.id) }
-            .find { recipe -> recipe.id == recipeId }
+        val allRecipes = burgerRecipes + dessertRecipes + pizzaRecipes +
+                fishRecipes + soupRecipes + saladRecipes
+
+        return allRecipes.find { it.id == recipeId }
             ?: throw NoSuchElementException("Рецепт с ID $recipeId не найден")
     }
 }
