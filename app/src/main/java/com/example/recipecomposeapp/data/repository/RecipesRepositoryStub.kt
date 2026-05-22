@@ -576,11 +576,12 @@ object RecipesRepositoryStub : RecipesRepository {
         return flowOf(recipes)
     }
 
-    override suspend fun getRecipe(recipeId: Int): RecipeDto {
+    override fun getRecipe(recipeId: Int): Flow<RecipeDto?> {
         val allRecipes = burgerRecipes + dessertRecipes + pizzaRecipes +
                 fishRecipes + soupRecipes + saladRecipes
 
-        return allRecipes.find { it.id == recipeId }
-            ?: throw NoSuchElementException("Рецепт с ID $recipeId не найден")
+        val recipe = allRecipes.find { it.id == recipeId }
+
+        return flowOf(recipe)
     }
 }

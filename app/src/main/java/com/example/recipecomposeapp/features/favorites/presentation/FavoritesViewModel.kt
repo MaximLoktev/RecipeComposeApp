@@ -6,9 +6,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.recipecomposeapp.core.utils.FavoriteDataStoreManager
 import com.example.recipecomposeapp.data.repository.RecipesRepository
 import com.example.recipecomposeapp.features.favorites.presentation.model.FavoritesUiState
+import com.example.recipecomposeapp.features.recipes.presentation.model.RecipeUiModel
 import com.example.recipecomposeapp.features.recipes.presentation.model.toUiModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
@@ -22,13 +24,16 @@ class FavoritesViewModel(
     val uiState: StateFlow<FavoritesUiState> = favoriteManager
         .getFavoriteIdsFlow()
         .map { idsSet ->
-            val recipes = idsSet.mapNotNull { idString ->
-                val id = idString.toIntOrNull()
+            val recipes = mutableListOf<RecipeUiModel>()
 
-                id?.let {
-                    runCatching { repository.getRecipe(it).toUiModel() }.getOrNull()
+            idsSet.forEach { idString ->
+                idString.toIntOrNull()?.let { id ->
+                    runCatching { repository.getRecipe(id).firstOrNull()?.toUiModel() }
+                        .getOrNull()
+                        ?.let { recipes.add(it) }
                 }
             }
+
             FavoritesUiState(favoriteRecipes = recipes, isLoading = false)
         }
         .stateIn(
