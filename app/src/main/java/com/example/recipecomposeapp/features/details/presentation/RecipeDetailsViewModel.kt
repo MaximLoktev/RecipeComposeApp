@@ -11,6 +11,7 @@ import com.example.recipecomposeapp.features.recipes.presentation.model.toUiMode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -24,41 +25,41 @@ class RecipeDetailsViewModel(
 
     private val favoriteManager = FavoriteDataStoreManager(application)
 
-    private val _uiState = MutableStateFlow(RecipeDetailsUiState())
+    private val _uiState = MutableStateFlow(RecipeDetailsUiState(isLoading = true))
 
     val uiState: StateFlow<RecipeDetailsUiState> = _uiState.asStateFlow()
 
     init {
-        loadRecipe(model.recipeId)
+        observeRecipe(model.recipeId)
+        observeFavoriteState(model.recipeId)
     }
 
-    private fun loadRecipe(recipeId: Int) {
+    private fun observeRecipe(recipeId: Int) {
         viewModelScope.launch {
-            _uiState.update {
-                it.copy(isLoading = true, error = null)
-            }
-
-            try {
-                val loadedRecipe = repository.getRecipe(recipeId).toUiModel()
-
-                _uiState.update {
-                     it.copy(isLoading = false, recipe = loadedRecipe)
-                }
-
-                favoriteManager.isFavoriteFlow(recipeId)
-                    .onEach { isFavorite ->
-                        _uiState.update {
-                            it.copy(isFavorite = isFavorite)
-                        }
+            repository.getRecipe(recipeId)
+                .catch { e ->
+                    _uiState.update {
+                        it.copy(isLoading = false, error = e.localizedMessage ?: "Ошибка загрузки")
                     }
-                    .launchIn(viewModelScope)
-
-            } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(isLoading = false, error = e.localizedMessage ?: "Ошибка загрузки рецепта")
                 }
-            }
+                .collect { dto ->
+                    if (dto != null) {
+                        _uiState.update {
+                            it.copy(isLoading = false, recipe = dto.toUiModel(), error = null)
+                        }
+                    } else {
+                        _uiState.update { it.copy(isLoading = true) }
+                    }
+                }
         }
+    }
+
+    private fun observeFavoriteState(recipeId: Int) {
+        favoriteManager.isFavoriteFlow(recipeId)
+            .onEach { isFavorite ->
+                _uiState.update { it.copy(isFavorite = isFavorite) }
+            }
+            .launchIn(viewModelScope)
     }
 
     fun toggleFavorite() {

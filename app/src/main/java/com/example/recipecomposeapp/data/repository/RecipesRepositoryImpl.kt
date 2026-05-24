@@ -12,7 +12,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class RecipesRepositoryImpl(
     private val apiService: RecipesApiService,
@@ -51,14 +50,16 @@ class RecipesRepositoryImpl(
         }
     }
 
-    override suspend fun getRecipe(recipeId: Int): RecipeDto {
-        return withContext(Dispatchers.IO) {
+    override fun getRecipe(recipeId: Int): Flow<RecipeDto?> {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
                 apiService.getRecipe(recipeId)
             } catch (e: Exception) {
-                Log.e("RecipesRepository", "Ошибка при загрузке рецепта $recipeId", e)
-                throw e
+                Log.e("RecipesRepository", "Ошибка обновления деталей рецепта: ${e.message}")
             }
+        }
+        return recipeDao.getRecipeById(recipeId).map { entity ->
+            entity?.toDto()
         }
     }
 }
