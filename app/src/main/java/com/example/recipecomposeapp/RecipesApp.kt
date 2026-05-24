@@ -128,7 +128,6 @@ fun RecipesApp(externalIntent: Intent? = null) {
                 )
             }
         ) { paddingValues ->
-
             NavHost(
                 navController = navController,
                 startDestination = Destination.Categories,
