@@ -17,7 +17,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
-import com.example.recipecomposeapp.app.di.CategoriesViewModelFactory
 import com.example.recipecomposeapp.app.di.FavoritesViewModelFactory
 import com.example.recipecomposeapp.app.di.RecipeApplication
 import com.example.recipecomposeapp.app.di.RecipeDetailsViewModelFactory
@@ -84,12 +83,7 @@ fun RecipesApp(externalIntent: Intent? = null) {
                 modifier = Modifier.padding(paddingValues)
             ) {
                 composable<Destination.Categories> {
-                    val viewModel = remember {
-                        CategoriesViewModelFactory(appContainer.recipesRepository).create()
-                    }
-
                     CategoriesScreen(
-                        viewModel = viewModel,
                         onCategoryClick = { categoryId, categoryTitle, categoryImageUrl ->
                             navController.navigate(
                                 Destination.Recipes(
