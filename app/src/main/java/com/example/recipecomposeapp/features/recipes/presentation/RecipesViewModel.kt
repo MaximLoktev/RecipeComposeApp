@@ -1,22 +1,29 @@
 package com.example.recipecomposeapp.features.recipes.presentation
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.example.recipecomposeapp.core.ui.navigation.Destination
 import com.example.recipecomposeapp.data.repository.RecipesRepository
 import com.example.recipecomposeapp.features.recipes.presentation.model.RecipesUiState
 import com.example.recipecomposeapp.features.recipes.presentation.model.toUiModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class RecipesViewModel(
-    model: Destination.Recipes,
+@HiltViewModel
+class RecipesViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val repository: RecipesRepository
 ) : ViewModel() {
+
+    val model = savedStateHandle.toRoute<Destination.Recipes>()
 
     private val _uiState = MutableStateFlow(
         RecipesUiState(

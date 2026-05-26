@@ -12,10 +12,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class RecipesRepositoryImpl(
+class RecipesRepositoryImpl @Inject constructor(
     private val apiService: RecipesApiService,
-    database: RecipesDatabase,
+    private val database: RecipesDatabase
 ) : RecipesRepository {
 
     private val categoryDao = database.categoryDao()

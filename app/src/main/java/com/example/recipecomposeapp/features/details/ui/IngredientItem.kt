@@ -9,8 +9,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.example.recipecomposeapp.features.recipes.presentation.model.IngredientUiModel
 import com.example.recipecomposeapp.core.ui.theme.Dimens
+import com.example.recipecomposeapp.features.recipes.presentation.model.IngredientUiModel
 
 @Composable
 fun IngredientItem(

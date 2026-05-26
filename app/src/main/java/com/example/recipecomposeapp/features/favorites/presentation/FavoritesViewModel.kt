@@ -1,25 +1,25 @@
 package com.example.recipecomposeapp.features.favorites.presentation
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipecomposeapp.core.utils.FavoriteDataStoreManager
 import com.example.recipecomposeapp.data.repository.RecipesRepository
 import com.example.recipecomposeapp.features.favorites.presentation.model.FavoritesUiState
 import com.example.recipecomposeapp.features.recipes.presentation.model.RecipeUiModel
 import com.example.recipecomposeapp.features.recipes.presentation.model.toUiModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
 
-class FavoritesViewModel(
-    application: Application,
+@HiltViewModel
+class FavoritesViewModel @Inject constructor(
+    private val favoriteManager: FavoriteDataStoreManager,
     private val repository: RecipesRepository
-) : AndroidViewModel(application) {
-
-    private val favoriteManager = FavoriteDataStoreManager(application)
+) : ViewModel() {
 
     val uiState: StateFlow<FavoritesUiState> = favoriteManager
         .getFavoriteIdsFlow()
