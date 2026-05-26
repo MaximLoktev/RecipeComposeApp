@@ -13,20 +13,30 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.example.recipecomposeapp.R
+import com.example.recipecomposeapp.app.di.CategoriesViewModelFactory
+import com.example.recipecomposeapp.app.di.RecipeApplication
 import com.example.recipecomposeapp.core.ui.components.ScreenHeader
 import com.example.recipecomposeapp.core.ui.theme.Dimens
-import com.example.recipecomposeapp.features.categories.presentation.CategoriesViewModel
 
 @Composable
 fun CategoriesScreen(
-    viewModel: CategoriesViewModel,
     onCategoryClick: (Int, String, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+
+    val context = LocalContext.current
+    val application = context.applicationContext as? RecipeApplication ?: return
+    val appContainer = application.appContainer
+
+    val viewModel = remember {
+        CategoriesViewModelFactory(appContainer.recipesRepository).create()
+    }
 
     val uiState by viewModel.uiState.collectAsState()
 
