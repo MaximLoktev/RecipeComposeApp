@@ -4,10 +4,12 @@ import android.content.Context
 import com.example.recipecomposeapp.BuildConfig
 import com.example.recipecomposeapp.core.network.NetworkConfig
 import com.example.recipecomposeapp.core.network.api.RecipesApiService
-import com.example.recipecomposeapp.core.utils.FavoriteDataStoreManager
 import com.example.recipecomposeapp.data.database.RecipesDatabase
-import com.example.recipecomposeapp.data.repository.RecipesRepository
-import com.example.recipecomposeapp.data.repository.RecipesRepositoryImpl
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -15,18 +17,25 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import java.util.concurrent.TimeUnit
+import javax.inject.Singleton
 
-class AppContainer(private val context: Context) {
+@Module
+@InstallIn(SingletonComponent::class)
+object AppModule {
 
-    private val jsonConfig: Json by lazy {
-        Json {
+    @Provides
+    @Singleton
+    fun provideJsonConfig(): Json {
+        return Json {
             ignoreUnknownKeys = true
             coerceInputValues = true
         }
     }
 
-    private val loggingInterceptor: HttpLoggingInterceptor by lazy {
-        HttpLoggingInterceptor().apply {
+    @Provides
+    @Singleton
+    fun provideLoggingInterceptor(): HttpLoggingInterceptor {
+        return HttpLoggingInterceptor().apply {
             level = if (BuildConfig.DEBUG) {
                 HttpLoggingInterceptor.Level.BODY
             } else {
@@ -35,8 +44,10 @@ class AppContainer(private val context: Context) {
         }
     }
 
-    private val okHttpClient: OkHttpClient by lazy {
-        OkHttpClient.Builder()
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
+        return OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
@@ -44,30 +55,25 @@ class AppContainer(private val context: Context) {
             .build()
     }
 
-    private val retrofit: Retrofit by lazy {
-        Retrofit.Builder()
+    @Provides
+    @Singleton
+    fun provideRetrofit(okHttpClient: OkHttpClient, jsonConfig: Json): Retrofit {
+        return Retrofit.Builder()
             .baseUrl(NetworkConfig.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(jsonConfig.asConverterFactory("application/json".toMediaType()))
             .build()
     }
 
-    private val recipesApi: RecipesApiService by lazy {
-        retrofit.create(RecipesApiService::class.java)
+    @Provides
+    @Singleton
+    fun provideRecipesApi(retrofit: Retrofit): RecipesApiService {
+        return retrofit.create(RecipesApiService::class.java)
     }
 
-    private val recipesDatabase: RecipesDatabase by lazy {
-        RecipesDatabase.buildDatabase(context)
-    }
-
-    val recipesRepository: RecipesRepository by lazy {
-        RecipesRepositoryImpl(
-            apiService = recipesApi,
-            database = recipesDatabase
-        )
-    }
-
-    val favoriteManager: FavoriteDataStoreManager by lazy {
-        FavoriteDataStoreManager(context)
+    @Provides
+    @Singleton
+    fun provideRecipesDatabase(@ApplicationContext context: Context): RecipesDatabase {
+        return RecipesDatabase.buildDatabase(context)
     }
 }
