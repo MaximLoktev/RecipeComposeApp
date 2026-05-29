@@ -4,12 +4,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -44,30 +49,47 @@ fun CategoriesScreen(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            if (uiState.isLoading && uiState.categories.isEmpty()) {
-                CircularProgressIndicator()
-            } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(
-                        horizontal = Dimens.paddingLarge,
-                        vertical = Dimens.paddingLarge
-                    ),
-                    horizontalArrangement = Arrangement.spacedBy(Dimens.paddingLarge),
-                    verticalArrangement = Arrangement.spacedBy(Dimens.paddingLarge)
-                ) {
-                    items(
-                        items = uiState.categories,
-                        key = { category -> category.id }
-                    ) { category ->
-                        CategoryItem(
-                            category = category,
-                            onClick = {
-                                onCategoryClick(category.id, category.title, category.imageUrl)
-                            },
-                            modifier = Modifier.fillMaxWidth()
+            when {
+                uiState.isError -> {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = stringResource(R.string.error_loading_data),
+                            color = MaterialTheme.colorScheme.error
                         )
+
+                        Spacer(modifier = Modifier.height(Dimens.paddingLarge))
+
+                        Button(onClick = { viewModel.retry() }) {
+                            Text(text = stringResource(R.string.retry))
+                        }
+                    }
+                }
+                uiState.isLoading && uiState.categories.isEmpty() -> {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                }
+                else -> {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(
+                            horizontal = Dimens.paddingLarge,
+                            vertical = Dimens.paddingLarge
+                        ),
+                        horizontalArrangement = Arrangement.spacedBy(Dimens.paddingLarge),
+                        verticalArrangement = Arrangement.spacedBy(Dimens.paddingLarge)
+                    ) {
+                        items(
+                            items = uiState.categories,
+                            key = { category -> category.id }
+                        ) { category ->
+                            CategoryItem(
+                                category = category,
+                                onClick = {
+                                    onCategoryClick(category.id, category.title, category.imageUrl)
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
                 }
             }

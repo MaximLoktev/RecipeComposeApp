@@ -10,4 +10,6 @@
     <string name="retry_attempt">Повторить попытку</string>
     <string name="empty_category_message">В этой категории пока нет рецептов</string>
     <string name="recipe_not_found">Рецепт не найден</string>
+    <string name="error_loading_data">Упс! Не удалось загрузить данные</string>
+    <string name="retry">Повторить</string>
 </resources>

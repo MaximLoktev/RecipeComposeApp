@@ -12,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -23,7 +24,7 @@ class RecipesViewModel @Inject constructor(
     private val repository: RecipesRepository
 ) : ViewModel() {
 
-    val model = savedStateHandle.toRoute<Destination.Recipes>()
+    private val model = savedStateHandle.toRoute<Destination.Recipes>()
 
     private val _uiState = MutableStateFlow(
         RecipesUiState(
@@ -39,13 +40,29 @@ class RecipesViewModel @Inject constructor(
         observeRecipes(model.categoryId)
     }
 
+    fun retry() {
+        _uiState.update {
+            it.copy(isLoading = true, isError = false)
+        }
+        observeRecipes(model.categoryId)
+    }
+
     private fun observeRecipes(categoryId: Int) {
         viewModelScope.launch {
             repository.getRecipesByCategory(categoryId)
                 .map { dto -> dto.map { it.toUiModel() } }
+                .catch {
+                    _uiState.update { state ->
+                        state.copy(isLoading = false, isError = true)
+                    }
+                }
                 .collect { recipesList ->
                     _uiState.update { state ->
-                        state.copy(isLoading = false, recipes = recipesList)
+                        state.copy(
+                            isLoading = false,
+                            isError = false,
+                            recipes = recipesList
+                        )
                     }
                 }
         }
