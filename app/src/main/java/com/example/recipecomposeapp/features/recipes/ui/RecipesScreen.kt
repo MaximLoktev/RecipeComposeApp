@@ -55,7 +55,7 @@ fun RecipesContent(
     onRetryClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize().testTag("recipes_screen")) {
         ScreenHeader(
             imageModel = uiState.categoryImageUrl,
             contentDescription = uiState.categoryTitle,
