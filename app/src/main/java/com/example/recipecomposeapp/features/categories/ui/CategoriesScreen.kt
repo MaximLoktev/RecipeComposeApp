@@ -20,12 +20,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.recipecomposeapp.R
 import com.example.recipecomposeapp.core.ui.components.ScreenHeader
 import com.example.recipecomposeapp.core.ui.theme.Dimens
 import com.example.recipecomposeapp.features.categories.presentation.CategoriesViewModel
+import com.example.recipecomposeapp.features.categories.presentation.model.CategoriesUiState
 
 @Composable
 fun CategoriesScreen(
@@ -36,6 +38,21 @@ fun CategoriesScreen(
 
     val uiState by viewModel.uiState.collectAsState()
 
+    CategoriesContent(
+        uiState = uiState,
+        onCategoryClick = onCategoryClick,
+        onRetryClick = { viewModel.retry() },
+        modifier = modifier
+    )
+}
+
+@Composable
+fun CategoriesContent(
+    uiState: CategoriesUiState,
+    onCategoryClick: (Int, String, String) -> Unit,
+    onRetryClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val screenTitle = stringResource(R.string.categories)
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -54,18 +71,22 @@ fun CategoriesScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = stringResource(R.string.error_loading_data),
-                            color = MaterialTheme.colorScheme.error
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.testTag("error_message")
                         )
 
                         Spacer(modifier = Modifier.height(Dimens.paddingLarge))
 
-                        Button(onClick = { viewModel.retry() }) {
+                        Button(onClick = onRetryClick) {
                             Text(text = stringResource(R.string.retry))
                         }
                     }
                 }
                 uiState.isLoading && uiState.categories.isEmpty() -> {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.testTag("loading_indicator")
+                    )
                 }
                 else -> {
                     LazyVerticalGrid(

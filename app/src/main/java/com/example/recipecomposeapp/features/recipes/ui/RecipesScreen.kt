@@ -19,12 +19,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import com.example.recipecomposeapp.R
 import com.example.recipecomposeapp.core.ui.components.ScreenHeader
 import com.example.recipecomposeapp.core.ui.theme.Dimens
 import com.example.recipecomposeapp.features.recipes.presentation.RecipesViewModel
 import com.example.recipecomposeapp.features.recipes.presentation.model.RecipeUiModel
+import com.example.recipecomposeapp.features.recipes.presentation.model.RecipesUiState
 
 @Composable
 fun RecipesScreen(
@@ -36,6 +38,23 @@ fun RecipesScreen(
 
     val uiState by viewModel.uiState.collectAsState()
 
+    RecipesContent(
+        uiState = uiState,
+        onRecipeClick = onRecipeClick,
+        onBackClick = onBackClick,
+        onRetryClick = { viewModel.retry() },
+        modifier = modifier
+    )
+}
+
+@Composable
+fun RecipesContent(
+    uiState: RecipesUiState,
+    onRecipeClick: (Int, RecipeUiModel) -> Unit,
+    onBackClick: () -> Unit,
+    onRetryClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(modifier = modifier.fillMaxSize()) {
         ScreenHeader(
             imageModel = uiState.categoryImageUrl,
@@ -55,24 +74,29 @@ fun RecipesScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = stringResource(R.string.error_loading_data),
-                            color = MaterialTheme.colorScheme.error
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.testTag("error_message")
                         )
 
                         Spacer(modifier = Modifier.height(Dimens.paddingLarge))
 
-                        Button(onClick = { viewModel.retry() }) {
+                        Button(onClick = onRetryClick) {
                             Text(text = stringResource(R.string.retry))
                         }
                     }
                 }
                 uiState.isLoading && uiState.recipes.isEmpty() -> {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.testTag("loading_indicator")
+                    )
                 }
                 uiState.isEmpty -> {
                     Text(
                         text = stringResource(R.string.empty_category_message),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.testTag("empty_state")
                     )
                 }
                 else -> {
