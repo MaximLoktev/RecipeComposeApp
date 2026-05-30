@@ -24,6 +24,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+//        testInstrumentationRunner = "com.example.recipecomposeapp.HiltTestRunner"
     }
 
     buildTypes {
@@ -92,6 +93,20 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+
+    androidTestImplementation(libs.mockwebserver)
+    androidTestImplementation(libs.room.testing)
+    androidTestImplementation(libs.hilt.android.testing)
+
+    kspAndroidTest(libs.hilt.compiler)
+
+    androidTestImplementation(libs.mockk)
+    androidTestImplementation(libs.mockk.android)
+    androidTestImplementation(libs.coroutines.test)
+    androidTestImplementation(libs.turbine)
+
+    androidTestImplementation(libs.coroutines.core)
+    androidTestImplementation(libs.coroutines.android)
 
     androidTestImplementation(libs.kaspresso)
     androidTestImplementation(libs.kaspresso.compose)
