@@ -55,7 +55,7 @@ fun CategoriesContent(
 ) {
     val screenTitle = stringResource(R.string.categories)
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize().testTag("categories_screen")) {
         ScreenHeader(
             imageModel = R.drawable.bcg_categories,
             contentDescription = screenTitle,
@@ -91,7 +91,7 @@ fun CategoriesContent(
                 else -> {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().testTag("categories_grid"),
                         contentPadding = PaddingValues(
                             horizontal = Dimens.paddingLarge,
                             vertical = Dimens.paddingLarge
